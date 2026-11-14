@@ -1,9 +1,9 @@
 # 🎁 Nossa Lista de Desejos
 
-Um site simples pra um casal montar a lista de presentes que quer ganhar, ver a lista do outro e marcar o que já foi reservado ou dado. Quem pediu não vê o que foi marcado, então a surpresa continua.
+Lista de desejos do Felipe e da Mayara.
 
-- `index.html`: o site inteiro
-- `firebase-config.js`: configuração do banco (Firebase Firestore, plano gratuito)
-- `firestore.rules`: regras de segurança pra colar no Firebase
+- **Meus:** o que eu quero ganhar. Quando eu ganho um presente, ele aparece como "💝 Ganhei", com a dedicatória.
+- **Do outro:** reservar ("Vou dar esse") em segredo e marcar "Já dei", com dedicatória e data.
+- **Nós 💕:** contador de dias juntos, potinho de recadinhos e a linha do tempo dos presentes trocados.
 
-O acesso é só com login (Felipe ou Mayara), e cada um só vê as reservas que ele mesmo fez.
+Acesso só com login. Os dados ficam no Firebase Firestore, protegidos pelas regras em `firestore.rules`.

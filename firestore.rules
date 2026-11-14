@@ -17,10 +17,29 @@ service cloud.firestore {
       allow delete: if isUs() && resource.data.owner == me();
     }
 
-    // Reservas e "já dei": cada um só vê e mexe nas próprias marcações.
-    // Assim o dono do desejo não consegue ver o que foi reservado pra ele.
+    // Reservas: cada um só vê as próprias (o dono do desejo não vê o que foi reservado).
     match /lists/nossa/marks/{giver}/items/{itemId} {
       allow read, write: if isUs() && giver == me();
+    }
+
+    // Presentes entregues: os dois veem; só quem deu cria, altera ou desfaz.
+    match /lists/nossa/given/{itemId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.giver == me() && request.resource.data.receiver != me();
+      allow update: if isUs() && resource.data.giver == me() && request.resource.data.giver == me() && request.resource.data.receiver != me();
+      allow delete: if isUs() && resource.data.giver == me();
+    }
+
+    // Recadinhos: os dois leem; cada um escreve e apaga os seus.
+    match /lists/nossa/notes/{noteId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.from == me();
+      allow delete: if isUs() && resource.data.from == me();
+    }
+
+    // Data do namoro.
+    match /lists/nossa/meta/{docId} {
+      allow read, write: if isUs();
     }
   }
 }

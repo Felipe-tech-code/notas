@@ -150,6 +150,36 @@ dialog h2{font-size:24px;margin-bottom:4px}
 .divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:22px 0 4px}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
 .loading{text-align:center;color:var(--muted);padding:60px 0}
+
+.badge.got{background:var(--rose-l);color:var(--rose-d)}
+.dedic{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--rose);background:var(--rose-l);border-radius:0 12px 12px 0;font-style:italic;font-size:14px;white-space:pre-wrap;word-wrap:break-word}
+.item.got{border-color:var(--rose)}
+
+.together{text-align:center;padding:30px 20px;background:linear-gradient(135deg,var(--rose-l),var(--card))}
+.together .names{font:700 clamp(24px,5vw,34px) Fraunces,serif}
+.together .names .h{display:inline-block;animation:beat 1.4s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.15)}}
+@media (prefers-reduced-motion: reduce){.together .names .h{animation:none}}
+.together .days{font:700 clamp(44px,10vw,64px) Fraunces,serif;color:var(--rose-d);line-height:1;margin:14px 0 4px}
+.together .sub{color:var(--muted)}
+.together .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+
+.note-form{padding:16px}
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+.note{position:relative;background:#fff8d6;color:#4a3a1a;border-radius:4px 4px 16px 4px;padding:18px 16px 14px;box-shadow:0 8px 18px -10px rgba(0,0,0,.35);font-size:15px;white-space:pre-wrap;word-wrap:break-word;transform:rotate(var(--r,0deg))}
+.note.mayara{background:#ffe1ea;color:#5a2236}
+.note::before{content:"";position:absolute;top:-8px;left:50%;width:60px;height:18px;transform:translateX(-50%) rotate(-2deg);background:rgba(255,255,255,.55);border-radius:2px}
+.note .from{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;opacity:.75;font-style:normal}
+.note .icon-btn{color:inherit;font-size:14px;padding:2px 4px}
+
+.timeline{position:relative;padding-left:26px}
+.timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl{position:relative;margin-bottom:14px}
+.tl::before{content:"";position:absolute;left:-22px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--rose);box-shadow:0 0 0 4px var(--bg)}
+.tl .card{padding:14px 16px}
+.tl .when{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tl .what{font-size:16px;margin-top:4px}
+.tl .what b{font-family:Fraunces,serif}
 </style>
 </head>
 <body>
@@ -187,8 +217,9 @@ dialog h2{font-size:24px;margin-bottom:4px}
   <!-- 3. App -->
   <section id="app" class="hidden">
     <nav class="tabs" role="tablist">
-      <button id="tabMine" class="active" role="tab">💭 Meus desejos</button>
-      <button id="tabTheirs" role="tab">🎀 Desejos de …</button>
+      <button id="tabMine" class="active" role="tab">💭 Meus</button>
+      <button id="tabTheirs" role="tab">🎀 …</button>
+      <button id="tabUs" role="tab">💕 Nós</button>
     </nav>
 
     <div id="mineView">
@@ -196,7 +227,7 @@ dialog h2{font-size:24px;margin-bottom:4px}
         <div><h2>O que eu quero ganhar</h2><p>Coloque link, tamanho, cor, qualquer dica ajuda.</p></div>
         <button class="btn" id="addBtn">＋ Novo desejo</button>
       </div>
-      <div class="secret">🤫 Aqui você não vê o que já foi reservado ou dado. Assim continua sendo surpresa!</div>
+      <div class="secret">🤫 Aqui você não vê o que já foi reservado. Só aparece quando você ganhar o presente!</div>
       <div class="list" id="mineList"></div>
     </div>
 
@@ -207,6 +238,25 @@ dialog h2{font-size:24px;margin-bottom:4px}
       </div>
       <div class="stats" id="stats"></div>
       <div class="list" id="theirsList"></div>
+    </div>
+
+    <div id="usView" class="hidden">
+      <div class="card together" id="together"></div>
+
+      <div class="section-head" style="margin-top:28px">
+        <div><h2>💌 Potinho de recadinhos</h2><p>Deixe um bilhetinho. Pode ser um "bom dia", uma saudade, um "te amo".</p></div>
+      </div>
+      <form id="noteForm" class="card note-form">
+        <textarea id="noteText" maxlength="400" placeholder="Escreva algo bonito…" required></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn" type="submit">Deixar no potinho 💌</button></div>
+      </form>
+      <div class="notes" id="notesList"></div>
+
+      <div class="section-head" style="margin-top:32px">
+        <div><h2>🎁 Presentes que já trocamos</h2><p>Nossa história contada em presentes.</p></div>
+      </div>
+      <div id="giftStats" class="stats"></div>
+      <div class="timeline" id="timeline"></div>
     </div>
   </section>
 </main>
@@ -241,6 +291,34 @@ dialog h2{font-size:24px;margin-bottom:4px}
   </form>
 </dialog>
 
+<dialog id="giveDlg">
+  <form id="giveForm" method="dialog">
+    <h2>Presente entregue! 💝</h2>
+    <p style="color:var(--muted);margin:4px 0 0" id="giveSub"></p>
+    <label for="giveNote">Quer deixar uma dedicatória? (opcional)</label>
+    <textarea id="giveNote" maxlength="300" placeholder="Ex.: Pra você lembrar de mim toda vez que usar ♥"></textarea>
+    <label for="giveDate">Quando foi?</label>
+    <input id="giveDate" type="date">
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="giveCancel">Cancelar</button>
+      <button type="submit" class="btn green" id="giveSave">✓ Confirmar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="sinceDlg">
+  <form id="sinceForm" method="dialog">
+    <h2>Desde quando? 💞</h2>
+    <p style="color:var(--muted);margin:4px 0 0">A data em que vocês começaram a namorar.</p>
+    <label for="sinceDate">Data</label>
+    <input id="sinceDate" type="date" required>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="sinceCancel">Cancelar</button>
+      <button type="submit" class="btn">Salvar 💕</button>
+    </div>
+  </form>
+</dialog>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -253,6 +331,7 @@ const $ = (id) => document.getElementById(id);
 const EMOJIS = ["🎁","👗","👟","📚","💄","💍","🎮","🎧","🌸","🍫","☕","✈️","🧸","🖼️","🪴","💻"];
 const PEOPLE = { felipe: "Felipe", mayara: "Mayara" };
 const EMAIL_DOMAIN = "nossalista.local";   // os usuários no Firebase são felipe@nossalista.local e mayara@nossalista.local
+const art = (k) => k==="mayara" ? "a" : "o";   // "da Mayara" / "do Felipe"
 
 /* ---------- utilidades ---------- */
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -261,6 +340,11 @@ function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{re
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch{return null;}}
 let toastT; function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2400);}
 function show(id){["loading","login","app"].forEach(s=>$(s).classList.toggle("hidden",s!==id));$("topActions").classList.toggle("hidden",id!=="app");$("fab").classList.toggle("hidden",!(id==="app"&&tab==="mine"));}
+const pad=(n)=>String(n).padStart(2,"0");
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+const parseDay=(s)=>{const [y,m,d]=String(s||"").split("-").map(Number);return y?{y,m,d}:null;};
+const fmtDay=(s)=>{const p=parseDay(s);return p?new Date(p.y,p.m-1,p.d).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"}):"";};
+const dayNum=(p)=>Math.floor(Date.UTC(p.y,p.m-1,p.d)/86400000);
 
 (()=>{const h=$("hearts");const set=["💗","💕","🎀","✨","💖"];for(let i=0;i<14;i++){const s=document.createElement("span");s.textContent=set[i%set.length];s.style.left=Math.random()*100+"%";s.style.animationDuration=(14+Math.random()*16)+"s";s.style.animationDelay=(-Math.random()*25)+"s";s.style.fontSize=(14+Math.random()*16)+"px";h.appendChild(s);}})();
 
@@ -269,12 +353,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = fs.getFirestore(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
-const itemsCol = () => fs.collection(db, "lists", "nossa", "items");
-// As marcações (reservado / dado) ficam numa pasta de quem vai dar: o dono do desejo não tem permissão de ler.
-const marksCol = () => fs.collection(db, "lists", "nossa", "marks", me, "items");
+const col = (...p) => fs.collection(db, "lists", "nossa", ...p);
+const ref = (...p) => fs.doc(db, "lists", "nossa", ...p);
+// items: desejos · marks/{quem dá}/items: reservas secretas · given: presentes entregues (os dois veem)
+// notes: recadinhos · meta/info: data de início do namoro
 
 /* ---------- estado ---------- */
-let me=null, items=[], marks={}, tab="mine", unsubs=[], editing=null, selEmoji="🎁", selPrio=2, pick=ls("wl-last")||"felipe";
+let me=null, items=[], marks={}, given={}, notes=[], meta={}, tab="mine", unsubs=[], editing=null, giving=null,
+    selEmoji="🎁", selPrio=2, pick=ls("wl-last")||"felipe";
 const other=()=>me==="felipe"?"mayara":"felipe";
 
 onAuthStateChanged(auth,(user)=>{
@@ -298,35 +384,44 @@ $("logoutBtn").onclick=()=>signOut(auth);
 /* ---------- app ---------- */
 function startApp(){
   $("subtitle").textContent=`Olá, ${PEOPLE[me]} 💕`;
-  $("tabTheirs").textContent=`🎀 Desejos d${me==="felipe"?"a":"o"} ${PEOPLE[other()]}`;
-  $("theirsTitle").textContent=`O que ${me==="felipe"?"a":"o"} ${PEOPLE[other()]} quer ganhar`;
+  $("tabTheirs").textContent=`🎀 ${PEOPLE[other()]}`;
+  $("theirsTitle").textContent=`O que ${art(other())} ${PEOPLE[other()]} quer ganhar`;
   $("hideGiven").checked=ls("wl-hide")==="1";
   const err=(e)=>{console.error(e);toast("Erro ao sincronizar 😕");};
-  unsubs.push(fs.onSnapshot(itemsCol(),s=>{items=s.docs.map(d=>({id:d.id,...d.data()}));render();},err));
-  unsubs.push(fs.onSnapshot(marksCol(),s=>{marks={};s.docs.forEach(d=>marks[d.id]=d.data().status);render();},err));
-  setTab(tab); show("app");
+  const watch=(c,fn)=>unsubs.push(fs.onSnapshot(c,fn,err));
+  watch(col("items"),s=>{items=s.docs.map(d=>({id:d.id,...d.data()}));render();});
+  watch(col("marks",me,"items"),s=>{marks={};s.docs.forEach(d=>marks[d.id]=d.data().status);render();});
+  watch(col("given"),s=>{given={};s.docs.forEach(d=>given[d.id]={id:d.id,...d.data()});render();});
+  watch(col("notes"),s=>{notes=s.docs.map(d=>({id:d.id,...d.data()}));renderUs();});
+  watch(ref("meta","info"),s=>{meta=s.exists()?s.data():{};renderUs();});
+  setTab(ls("wl-tab")||"mine"); show("app");
 }
 function setTab(t){
-  tab=t;
-  $("tabMine").classList.toggle("active",t==="mine"); $("tabTheirs").classList.toggle("active",t==="theirs");
-  $("mineView").classList.toggle("hidden",t!=="mine"); $("theirsView").classList.toggle("hidden",t!=="theirs");
+  tab=t; ls("wl-tab",t);
+  [["mine","tabMine","mineView"],["theirs","tabTheirs","theirsView"],["us","tabUs","usView"]].forEach(([k,b,v])=>{
+    $(b).classList.toggle("active",t===k); $(v).classList.toggle("hidden",t!==k);
+  });
   $("fab").classList.toggle("hidden",t!=="mine");
 }
 
-const sortItems=(arr)=>arr.sort((x,y)=>(y.priority||0)-(x.priority||0)||(y.createdAt||0)-(x.createdAt||0));
+/* ---------- listas ---------- */
+const statusOf=(it)=>given[it.id]?"dado":marks[it.id];
+const sortItems=(arr,done)=>arr.sort((x,y)=>(done(x)-done(y))||(y.priority||0)-(x.priority||0)||(y.createdAt||0)-(x.createdAt||0));
 function itemHtml(it,mine){
-  const url=safeUrl(it.link), p=it.priority||1, st=mine?null:marks[it.id];
-  let badge="", actions="";
+  const url=safeUrl(it.link), p=it.priority||1, g=given[it.id], st=mine?null:statusOf(it);
+  let badge="", actions="", extra="", cls="";
   if(mine){
-    actions=`<button class="icon-btn" data-act="edit" title="Editar">✏️</button><button class="icon-btn" data-act="del" title="Apagar">🗑️</button>`;
+    if(g){ cls="got"; badge=`<span class="badge got">💝 Ganhei d${art(g.giver)} ${esc(PEOPLE[g.giver])}${g.date?` · ${esc(fmtDay(g.date))}`:""}</span>`;
+           if(g.note) extra=`<p class="dedic">“${esc(g.note)}”</p>`; }
+    actions=`${g?"":`<button class="icon-btn" data-act="edit" title="Editar">✏️</button>`}<button class="icon-btn" data-act="del" title="Apagar">🗑️</button>`;
   }else{
-    if(st==="dado") badge=`<span class="badge done">✓ Já dado</span>`;
+    if(st==="dado"){ cls="given"; badge=`<span class="badge done">✓ Você deu${g?.date?` · ${esc(fmtDay(g.date))}`:""}</span>`; if(g?.note) extra=`<p class="dedic">“${esc(g.note)}”</p>`; }
     else if(st==="reservado") badge=`<span class="badge res">🎁 Reservado por você</span>`;
     actions = st==="dado" ? `<button class="btn ghost small" data-act="undo">Desfazer</button>`
       : st==="reservado" ? `<button class="btn green small" data-act="dado">✓ Já dei!</button><button class="btn ghost small" data-act="undo">Cancelar reserva</button>`
       : `<button class="btn small" data-act="reservado">🎁 Vou dar esse</button><button class="btn ghost small" data-act="dado">✓ Já dei</button>`;
   }
-  return `<article class="item ${st==="dado"?"given":""}" data-id="${esc(it.id)}">
+  return `<article class="item ${cls}" data-id="${esc(it.id)}">
     <div class="emoji">${esc(it.emoji||"🎁")}</div>
     <div class="body">
       <h3>${esc(it.title)}</h3>
@@ -337,46 +432,117 @@ function itemHtml(it,mine){
         ${badge}
       </div>
       ${it.note?`<p class="note">${esc(it.note)}</p>`:""}
+      ${extra}
       <div class="actions">${actions}</div>
     </div>
   </article>`;
 }
 function render(){
   if(!me) return;
-  const mine=sortItems(items.filter(i=>i.owner===me));
-  const theirs=sortItems(items.filter(i=>i.owner===other()));
-  $("mineList").innerHTML = mine.length ? mine.map(i=>itemHtml(i,true)).join("")
-    : `<div class="empty"><div class="big">🌟</div><p>Sua lista está vazia.<br>Que tal colocar o primeiro desejo?</p><button class="btn" data-act="add">＋ Adicionar desejo</button></div>`;
+  const mine=sortItems(items.filter(i=>i.owner===me),i=>given[i.id]?1:0);
+  const theirs=sortItems(items.filter(i=>i.owner===other()),i=>statusOf(i)==="dado"?1:0);
+  const nGot=mine.filter(i=>given[i.id]).length;
+  $("mineList").innerHTML = (nGot?`<div class="stats"><span class="pill">💭 <b>${mine.length-nGot}</b> esperando</span><span class="pill">💝 <b>${nGot}</b> já ganhei</span></div>`:"")
+    + (mine.length ? mine.map(i=>itemHtml(i,true)).join("")
+    : `<div class="empty"><div class="big">🌟</div><p>Sua lista está vazia.<br>Que tal colocar o primeiro desejo?</p><button class="btn" data-act="add">＋ Adicionar desejo</button></div>`);
   const hide=$("hideGiven").checked;
-  const visible=hide?theirs.filter(i=>marks[i.id]!=="dado"):theirs;
-  const nRes=theirs.filter(i=>marks[i.id]==="reservado").length, nDone=theirs.filter(i=>marks[i.id]==="dado").length;
+  const visible=hide?theirs.filter(i=>statusOf(i)!=="dado"):theirs;
+  const nRes=theirs.filter(i=>statusOf(i)==="reservado").length, nDone=theirs.filter(i=>statusOf(i)==="dado").length;
   $("stats").innerHTML = theirs.length?`<span class="pill"><b>${theirs.length}</b> desejos</span><span class="pill">🎁 <b>${nRes}</b> reservados</span><span class="pill">✓ <b>${nDone}</b> já dados</span>`:"";
   $("theirsList").innerHTML = visible.length ? visible.map(i=>itemHtml(i,false)).join("")
     : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${PEOPLE[other()]} ainda não colocou nenhum desejo.`}</p></div>`;
+  renderUs();
 }
 
+/* ---------- aba Nós ---------- */
+function renderUs(){
+  if(!me) return;
+  const names=`${PEOPLE.felipe} <span class="h">💞</span> ${PEOPLE.mayara}`;
+  const s=parseDay(meta.since);
+  if(!s){
+    $("together").innerHTML=`<div class="names">${names}</div><p class="sub" style="margin:12px 0 16px">Quando foi que tudo começou?</p><button class="btn" data-act="since">💕 Colocar a data do nosso namoro</button>`;
+  }else{
+    const t=parseDay(todayStr()), days=dayNum(t)-dayNum(s);
+    let months=(t.y-s.y)*12+(t.m-s.m); if(t.d<s.d) months--;
+    const yrs=Math.floor(months/12), mo=months%12;
+    const dim=(y,m)=>new Date(y,m,0).getDate();
+    let ny=t.y, nm=t.m; let nd=Math.min(s.d,dim(ny,nm));
+    if(t.d>nd){ nm++; if(nm>12){nm=1;ny++;} nd=Math.min(s.d,dim(ny,nm)); }
+    const until=dayNum({y:ny,m:nm,d:nd})-dayNum(t);
+    const isAnniv = nm===s.m;
+    const nextLabel = until===0 ? (isAnniv?"🎉 Hoje é nosso aniversário de namoro!":"🎉 Hoje é nosso mêsversário!")
+      : `${isAnniv?"💍 Aniversário de namoro":"🌙 Próximo mêsversário"} em <b>${until}</b> dia${until>1?"s":""}`;
+    const parts=[]; if(yrs) parts.push(`${yrs} ano${yrs>1?"s":""}`); if(mo) parts.push(`${mo} ${mo>1?"meses":"mês"}`);
+    $("together").innerHTML=`<div class="names">${names}</div>
+      <div class="days">${days.toLocaleString("pt-BR")}</div>
+      <div class="sub">dias juntos${parts.length?` · ${parts.join(" e ")}`:""} · desde ${esc(fmtDay(meta.since))}</div>
+      <div class="chips"><span class="pill">${nextLabel}</span><button class="btn ghost small" data-act="since">✏️ data</button></div>`;
+  }
+  // recadinhos
+  const ns=[...notes].sort((a,b)=>(b.at||0)-(a.at||0));
+  $("notesList").innerHTML = ns.length ? ns.map((n,i)=>`<div class="note ${esc(n.from)}" style="--r:${[-1.5,1,-0.5,1.5,0.5,-1][i%6]}deg" data-note="${esc(n.id)}">${esc(n.text)}
+      <div class="from"><span>— ${esc(PEOPLE[n.from]||"")}, ${new Date(n.at).toLocaleDateString("pt-BR",{day:"numeric",month:"short"})}</span>${n.from===me?`<button class="icon-btn" data-act="delnote" title="Apagar">✕</button>`:""}</div></div>`).join("")
+    : `<div class="empty" style="grid-column:1/-1"><div class="big">💌</div><p>O potinho está vazio. Deixa o primeiro recadinho!</p></div>`;
+  // presentes trocados
+  const gs=Object.values(given).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||(b.at||0)-(a.at||0));
+  const by=(k)=>gs.filter(g=>g.giver===k).length;
+  $("giftStats").innerHTML = gs.length?`<span class="pill">🎁 <b>${gs.length}</b> presente${gs.length>1?"s":""} trocado${gs.length>1?"s":""}</span><span class="pill">${PEOPLE.felipe} deu <b>${by("felipe")}</b></span><span class="pill">${PEOPLE.mayara} deu <b>${by("mayara")}</b></span>`:"";
+  $("timeline").innerHTML = gs.length ? gs.map(g=>`<div class="tl"><div class="card">
+      <div class="when">${esc(fmtDay(g.date)||"")}</div>
+      <div class="what">${esc(g.emoji||"🎁")} <b>${esc(PEOPLE[g.giver])}</b> deu <b>${esc(g.title)}</b> pr${art(g.receiver)} <b>${esc(PEOPLE[g.receiver])}</b></div>
+      ${g.note?`<p class="dedic">“${esc(g.note)}”</p>`:""}</div></div>`).join("")
+    : `<div class="empty" style="margin-left:-26px"><div class="big">🎀</div><p>Quando um presente for marcado como "Já dei", ele aparece aqui pra sempre.</p></div>`;
+}
+
+/* ---------- ações ---------- */
 document.addEventListener("click",async(e)=>{
   const b=e.target.closest("[data-act]"); if(!b||!me) return;
   const act=b.dataset.act;
-  if(act==="add") return openDlg(null);
-  const id=b.closest("[data-id]")?.dataset.id; const it=items.find(i=>i.id===id); if(!it) return;
-  const markRef=fs.doc(db,"lists","nossa","marks",me,"items",id);
   try{
+    if(act==="add") return openDlg(null);
+    if(act==="since"){ $("sinceDate").value=meta.since||""; $("sinceDate").max=todayStr(); return $("sinceDlg").showModal(); }
+    if(act==="delnote"){ const id=b.closest("[data-note]")?.dataset.note; if(id&&confirm("Apagar esse recadinho?")) await fs.deleteDoc(ref("notes",id)); return; }
+    const id=b.closest("[data-id]")?.dataset.id; const it=items.find(i=>i.id===id); if(!it) return;
+    const markRef=ref("marks",me,"items",id);
     if(act==="edit") return openDlg(it);
-    if(act==="del"){ if(confirm(`Apagar "${it.title}"?`)){await fs.deleteDoc(fs.doc(itemsCol(),id));toast("Desejo apagado");} return; }
+    if(act==="del"){ if(confirm(`Apagar "${it.title}"?${given[id]?"\n(Ele continua na nossa história de presentes.)":""}`)){await fs.deleteDoc(ref("items",id));toast("Desejo apagado");} return; }
     if(act==="reservado"){await fs.setDoc(markRef,{status:"reservado",at:Date.now()});toast("Reservado! Segredo nosso 🤫");}
-    if(act==="dado"){await fs.setDoc(markRef,{status:"dado",at:Date.now()});toast("Presente dado! 💝");}
-    if(act==="undo"){await fs.deleteDoc(markRef);toast("Desfeito");}
+    if(act==="dado"){ giving=it; $("giveSub").textContent=`${it.emoji||"🎁"} ${it.title}`; $("giveNote").value=""; $("giveDate").value=todayStr(); $("giveDate").max=todayStr(); $("giveDlg").showModal(); }
+    if(act==="undo"){ if(given[id]) await fs.deleteDoc(ref("given",id)); await fs.deleteDoc(markRef); toast("Desfeito"); }
   }catch(err){console.error(err);toast("Não deu certo, tenta de novo 😕");}
 });
 
+$("giveCancel").onclick=()=>$("giveDlg").close();
+$("giveForm").onsubmit=async(e)=>{
+  e.preventDefault(); const it=giving; if(!it) return;
+  $("giveSave").disabled=true;
+  try{
+    await fs.setDoc(ref("given",it.id),{giver:me,receiver:it.owner,title:it.title,emoji:it.emoji||"🎁",note:$("giveNote").value.trim(),date:$("giveDate").value||todayStr(),at:Date.now()});
+    await fs.setDoc(ref("marks",me,"items",it.id),{status:"dado",at:Date.now()});
+    $("giveDlg").close(); toast("Presente entregue! 💝");
+  }catch(err){console.error(err);toast("Não deu certo, tenta de novo 😕");}
+  finally{$("giveSave").disabled=false;}
+};
+$("sinceCancel").onclick=()=>$("sinceDlg").close();
+$("sinceForm").onsubmit=async(e)=>{
+  e.preventDefault(); const v=$("sinceDate").value; if(!v) return;
+  try{ await fs.setDoc(ref("meta","info"),{since:v},{merge:true}); $("sinceDlg").close(); toast("Data salva 💕"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
+$("noteForm").onsubmit=async(e)=>{
+  e.preventDefault(); const text=$("noteText").value.trim(); if(!text) return;
+  try{ await fs.addDoc(col("notes"),{from:me,text,at:Date.now()}); $("noteText").value=""; toast("Recadinho deixado 💌"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
+
 $("tabMine").onclick=()=>setTab("mine");
 $("tabTheirs").onclick=()=>setTab("theirs");
+$("tabUs").onclick=()=>setTab("us");
 $("hideGiven").onchange=()=>{ls("wl-hide",$("hideGiven").checked?"1":"0");render();};
 $("addBtn").onclick=()=>openDlg(null);
 $("fab").onclick=()=>openDlg(null);
 
-/* ---------- diálogo ---------- */
+/* ---------- diálogo de desejo ---------- */
 $("emojiPick").innerHTML=EMOJIS.map(x=>`<button type="button" data-e="${x}">${x}</button>`).join("");
 $("emojiPick").onclick=(e)=>{const b=e.target.closest("[data-e]");if(!b)return;selEmoji=b.dataset.e;markSel();};
 $("prioPick").onclick=(e)=>{const b=e.target.closest("[data-p]");if(!b)return;selPrio=+b.dataset.p;markSel();};
@@ -398,8 +564,8 @@ $("itemForm").onsubmit=async(e)=>{
   if(!data.title) return;
   $("dlgSave").disabled=true;
   try{
-    if(editing){await fs.updateDoc(fs.doc(itemsCol(),editing.id),data);toast("Desejo atualizado ✨");}
-    else{await fs.addDoc(itemsCol(),{...data,owner:me,createdAt:Date.now()});toast("Desejo adicionado ✨");}
+    if(editing){await fs.updateDoc(ref("items",editing.id),data);toast("Desejo atualizado ✨");}
+    else{await fs.addDoc(col("items"),{...data,owner:me,createdAt:Date.now()});toast("Desejo adicionado ✨");}
     $("itemDlg").close();
   }catch(err){console.error(err);toast("Não consegui salvar 😕");}
   finally{$("dlgSave").disabled=false;}
