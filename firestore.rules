@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Só quem tem o código secreto do casal (que vai no link) consegue ler e escrever.
+    // Listar todos os casais é proibido, então ninguém descobre códigos.
+    match /couples/{code} {
+      allow get, create, update: if code.size() >= 12;
+      match /items/{itemId} {
+        allow read, write: if code.size() >= 12;
+      }
+    }
+  }
+}

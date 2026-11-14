@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nossa Lista de Desejos</title>
+<meta name="description" content="A lista de desejos do casal: cada um coloca o que quer ganhar e o outro marca o que já deu.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff7f3; --bg2:#ffe9e1; --card:#ffffff; --ink:#3a2530; --muted:#8b6f78;
+  --rose:#e2557a; --rose-d:#c23d62; --rose-l:#fde0e7; --gold:#e8a33d; --green:#3f9d6b; --green-l:#dff3e7;
+  --line:#f1d6dc; --shadow:0 10px 30px -12px rgba(194,61,98,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1d1418; --bg2:#2a1b21; --card:#2a1d23; --ink:#f8e9ee; --muted:#c3a6b0;
+    --rose:#f07a98; --rose-d:#ff97b1; --rose-l:#4a2632; --gold:#f2b65c; --green:#6cc996; --green-l:#1f3a2c;
+    --line:#45303a; --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1d1418; --bg2:#2a1b21; --card:#2a1d23; --ink:#f8e9ee; --muted:#c3a6b0;
+  --rose:#f07a98; --rose-d:#ff97b1; --rose-l:#4a2632; --gold:#f2b65c; --green:#6cc996; --green-l:#1f3a2c;
+  --line:#45303a; --shadow:0 10px 30px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:Nunito,system-ui,sans-serif; color:var(--ink); min-height:100vh;
+  background:radial-gradient(1200px 600px at 10% -10%,var(--bg2),transparent 60%),
+             radial-gradient(900px 500px at 110% 10%,var(--rose-l),transparent 60%),var(--bg);
+  background-attachment:fixed;
+}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;line-height:1.15}
+a{color:var(--rose-d)}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 80px}
+.hidden{display:none!important}
+.hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.hearts span{position:absolute;bottom:-40px;font-size:18px;opacity:.18;animation:float linear infinite}
+@keyframes float{to{transform:translateY(-115vh) rotate(25deg)}}
+@media (prefers-reduced-motion: reduce){.hearts{display:none}}
+main{position:relative;z-index:1}
+
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{font-size:30px}
+.brand h1{font-size:clamp(22px,4vw,30px)}
+.brand small{display:block;color:var(--muted);font-size:13px;font-family:Nunito}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.hero{text-align:center;padding:40px 22px}
+.hero .big{font-size:56px}
+.hero h2{font-size:clamp(26px,5vw,38px);margin:10px 0 8px}
+.hero p{color:var(--muted);max-width:520px;margin:0 auto 22px}
+
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+input,textarea,select{
+  width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);
+  border-radius:12px;padding:11px 13px;outline:none;transition:border-color .15s
+}
+input:focus,textarea:focus,select:focus{border-color:var(--rose)}
+textarea{resize:vertical;min-height:70px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;
+  font:700 15px Nunito,sans-serif;border-radius:999px;padding:11px 20px;transition:transform .08s,background .15s,opacity .15s;
+  background:var(--rose);color:#fff;text-decoration:none
+}
+.btn:hover{background:var(--rose-d)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--rose-d);border:1.5px solid var(--line)}
+.btn.ghost:hover{background:var(--rose-l)}
+.btn.small{padding:7px 13px;font-size:13px}
+.btn.green{background:var(--green)}
+.btn:disabled{opacity:.5;cursor:default}
+.icon-btn{background:transparent;border:0;cursor:pointer;font-size:17px;padding:6px;border-radius:8px;color:var(--muted)}
+.icon-btn:hover{background:var(--rose-l)}
+
+.who{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.who button{
+  background:var(--bg);border:2px solid var(--line);border-radius:18px;padding:26px 10px;cursor:pointer;
+  font:700 20px Fraunces,serif;color:var(--ink);transition:border-color .15s,transform .1s
+}
+.who button:hover{border-color:var(--rose);transform:translateY(-2px)}
+.who button span{display:block;font-size:40px;margin-bottom:6px}
+
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:18px;box-shadow:var(--shadow)}
+.tabs button{
+  flex:1;border:0;background:transparent;font:700 15px Nunito,sans-serif;color:var(--muted);
+  padding:11px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.tabs button.active{background:var(--rose);color:#fff}
+
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.section-head h2{font-size:26px}
+.section-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{width:auto}
+
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.pill b{color:var(--ink)}
+
+.list{display:grid;gap:12px}
+.item{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);transition:opacity .2s}
+.item .emoji{font-size:28px;line-height:1;flex:none;width:44px;height:44px;display:grid;place-items:center;background:var(--rose-l);border-radius:14px}
+.item .body{flex:1;min-width:0}
+.item h3{font-size:18px;word-wrap:break-word}
+.item .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:13px;color:var(--muted)}
+.item .note{margin:8px 0 0;font-size:14px;color:var(--muted);white-space:pre-wrap;word-wrap:break-word}
+.prio{color:var(--rose);letter-spacing:1px}
+.item .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.item.given{opacity:.62}
+.item.given h3{text-decoration:line-through}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px}
+.badge.res{background:#fff1d9;color:#9a6512}
+.badge.done{background:var(--green-l);color:var(--green)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .badge.res{background:#4a3517;color:var(--gold)}}
+:root[data-theme="dark"] .badge.res{background:#4a3517;color:var(--gold)}
+
+.empty{text-align:center;color:var(--muted);padding:40px 16px;border:2px dashed var(--line);border-radius:18px}
+.empty .big{font-size:42px}
+
+.fab{position:fixed;right:18px;bottom:18px;z-index:5;width:60px;height:60px;border-radius:50%;font-size:30px;padding:0;box-shadow:0 12px 30px -8px rgba(194,61,98,.6)}
+
+dialog{border:0;border-radius:22px;padding:0;max-width:520px;width:calc(100% - 32px);background:var(--card);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.45)}
+dialog::backdrop{background:rgba(40,15,25,.45);backdrop-filter:blur(3px)}
+dialog form{padding:22px}
+dialog h2{font-size:24px;margin-bottom:4px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.emoji-pick{display:flex;gap:6px;flex-wrap:wrap}
+.emoji-pick button{font-size:22px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;width:44px;height:44px;cursor:pointer}
+.emoji-pick button.sel{border-color:var(--rose);background:var(--rose-l)}
+.prio-pick{display:flex;gap:8px}
+.prio-pick button{flex:1;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 4px;cursor:pointer;font:600 13px Nunito;color:var(--ink)}
+.prio-pick button.sel{border-color:var(--rose);background:var(--rose-l)}
+
+.banner{background:#fff4d6;color:#7a5410;border:1px solid #f0d58f;border-radius:14px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .banner{background:#3d3018;color:#f2d28d;border-color:#5e4a22}}
+:root[data-theme="dark"] .banner{background:#3d3018;color:#f2d28d;border-color:#5e4a22}
+.secret{background:var(--rose-l);border-radius:14px;padding:10px 14px;font-size:13px;color:var(--rose-d);margin-bottom:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;transition:.25s;z-index:20;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:22px 0 4px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.loading{text-align:center;color:var(--muted);padding:60px 0}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+<main class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🎁</div>
+      <div><h1>Nossa Lista de Desejos</h1><small id="subtitle">pra ninguém mais errar o presente</small></div>
+    </div>
+    <div id="topActions" class="hidden" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost small" id="shareBtn">🔗 Compartilhar</button>
+      <button class="btn ghost small" id="switchBtn" title="Trocar quem está usando">🔄 Trocar</button>
+    </div>
+  </header>
+
+  <div id="demoBanner" class="banner hidden">
+    <b>Modo demonstração:</b> o banco de dados ainda não foi configurado, então tudo fica salvo só neste navegador.
+  </div>
+
+  <div id="loading" class="loading">Carregando…</div>
+
+  <!-- 1. Boas-vindas -->
+  <section id="welcome" class="card hero hidden">
+    <div class="big">💝</div>
+    <h2>Uma lista de presentes a dois</h2>
+    <p>Cada um coloca o que quer ganhar. O outro vê, escolhe e marca o que já deu, e quem fez o pedido não vê o que foi marcado. A surpresa fica garantida.</p>
+    <form id="createForm" style="max-width:420px;margin:0 auto;text-align:left">
+      <div class="row">
+        <div><label for="nameA">Seu nome</label><input id="nameA" required maxlength="30" placeholder="Ex.: Felipe"></div>
+        <div><label for="nameB">Nome do seu amor</label><input id="nameB" required maxlength="30" placeholder="Ex.: Ana"></div>
+      </div>
+      <button class="btn" style="width:100%;margin-top:18px" type="submit">Criar nossa lista 💕</button>
+    </form>
+    <div class="divider" style="max-width:420px;margin-left:auto;margin-right:auto">ou</div>
+    <form id="joinForm" style="max-width:420px;margin:0 auto;text-align:left">
+      <label for="joinCode">Já tenho um código</label>
+      <div style="display:flex;gap:8px"><input id="joinCode" placeholder="cole o código aqui" required><button class="btn ghost" type="submit">Entrar</button></div>
+    </form>
+  </section>
+
+  <!-- 2. Quem é você -->
+  <section id="whoScreen" class="card hero hidden">
+    <div class="big">👀</div>
+    <h2>Quem está aqui?</h2>
+    <p>Escolha seu nome. Este aparelho vai lembrar de você.</p>
+    <div class="who" id="whoButtons"></div>
+  </section>
+
+  <!-- 3. App -->
+  <section id="app" class="hidden">
+    <nav class="tabs" role="tablist">
+      <button id="tabMine" class="active" role="tab">💭 Meus desejos</button>
+      <button id="tabTheirs" role="tab">🎀 Desejos de …</button>
+    </nav>
+
+    <div id="mineView">
+      <div class="section-head">
+        <div><h2>O que eu quero ganhar</h2><p>Coloque link, tamanho, cor, qualquer dica ajuda.</p></div>
+        <button class="btn" id="addBtn">＋ Novo desejo</button>
+      </div>
+      <div class="secret">🤫 Aqui você não vê o que já foi reservado ou dado. Assim continua sendo surpresa!</div>
+      <div class="list" id="mineList"></div>
+    </div>
+
+    <div id="theirsView" class="hidden">
+      <div class="section-head">
+        <div><h2 id="theirsTitle">Desejos</h2><p>Reserve o que você vai dar e marque quando entregar. Fica só entre nós dois 😉</p></div>
+        <label class="toggle"><input type="checkbox" id="hideGiven"> esconder os já dados</label>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="list" id="theirsList"></div>
+    </div>
+  </section>
+</main>
+
+<button class="btn fab hidden" id="fab" aria-label="Novo desejo">＋</button>
+
+<dialog id="itemDlg">
+  <form id="itemForm" method="dialog">
+    <h2 id="dlgTitle">Novo desejo</h2>
+    <label for="fTitle">O que você quer?</label>
+    <input id="fTitle" required maxlength="120" placeholder="Ex.: Tênis branco, livro, perfume…">
+    <label>Ícone</label>
+    <div class="emoji-pick" id="emojiPick"></div>
+    <div class="row">
+      <div><label for="fPrice">Preço aproximado</label><input id="fPrice" maxlength="20" placeholder="Ex.: R$ 150"></div>
+      <div><label>Quanto eu quero</label>
+        <div class="prio-pick" id="prioPick">
+          <button type="button" data-p="1">♥ Seria legal</button>
+          <button type="button" data-p="2">♥♥ Quero</button>
+          <button type="button" data-p="3">♥♥♥ Muito!</button>
+        </div>
+      </div>
+    </div>
+    <label for="fLink">Link (opcional)</label>
+    <input id="fLink" type="url" maxlength="600" placeholder="https://…">
+    <label for="fNote">Detalhes (tamanho, cor, modelo…)</label>
+    <textarea id="fNote" maxlength="500" placeholder="Ex.: tamanho M, de preferência azul"></textarea>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="dlgCancel">Cancelar</button>
+      <button type="submit" class="btn" id="dlgSave">Salvar 💾</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { firebaseConfig } from "./firebase-config.js";
+
+const $ = (id) => document.getElementById(id);
+const EMOJIS = ["🎁","👗","👟","📚","💄","💍","🎮","🎧","🌸","🍫","☕","✈️","🧸","🖼️","🪴","💻"];
+
+/* ---------- utilidades ---------- */
+function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function safeUrl(u){try{const x=new URL(u);return (x.protocol==="https:"||x.protocol==="http:")?x.href:"";}catch{return "";}}
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{return "";}}
+function newCode(){const a="abcdefghjkmnpqrstuvwxyz23456789";const r=crypto.getRandomValues(new Uint8Array(16));return Array.from(r,b=>a[b%a.length]).join("");}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch{return null;}}
+let toastT; function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2400);}
+function show(id){["loading","welcome","whoScreen","app"].forEach(s=>$(s).classList.toggle("hidden",s!==id));$("topActions").classList.toggle("hidden",id!=="app");$("fab").classList.toggle("hidden",!(id==="app"&&tab==="mine"));}
+
+/* corações flutuando */
+(()=>{const h=$("hearts");const set=["💗","💕","🎀","✨","💖"];for(let i=0;i<14;i++){const s=document.createElement("span");s.textContent=set[i%set.length];s.style.left=Math.random()*100+"%";s.style.animationDuration=(14+Math.random()*16)+"s";s.style.animationDelay=(-Math.random()*25)+"s";s.style.fontSize=(14+Math.random()*16)+"px";h.appendChild(s);}})();
+
+/* ---------- camada de dados ---------- */
+async function makeApi(){
+  if(firebaseConfig && firebaseConfig.projectId){
+    const V="10.12.2";
+    const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const fs = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+    const db = fs.getFirestore(initializeApp(firebaseConfig));
+    const items = (code)=>fs.collection(db,"couples",code,"items");
+    return {
+      async getCouple(code){const s=await fs.getDoc(fs.doc(db,"couples",code));return s.exists()?s.data():null;},
+      async createCouple(code,data){await fs.setDoc(fs.doc(db,"couples",code),{...data,createdAt:Date.now()});},
+      watchItems(code,cb){return fs.onSnapshot(items(code),snap=>cb(snap.docs.map(d=>({id:d.id,...d.data()}))),err=>{console.error(err);toast("Erro ao sincronizar 😕");});},
+      async addItem(code,it){await fs.addDoc(items(code),it);},
+      async updateItem(code,id,p){await fs.updateDoc(fs.doc(db,"couples",code,"items",id),p);},
+      async deleteItem(code,id){await fs.deleteDoc(fs.doc(db,"couples",code,"items",id));},
+    };
+  }
+  // modo demonstração: localStorage
+  $("demoBanner").classList.remove("hidden");
+  const key=(c)=>"wl-demo-"+c; const subs=new Set();
+  const read=(c)=>{try{return JSON.parse(ls(key(c))||"null");}catch{return null;}};
+  const write=(c,d)=>{ls(key(c),JSON.stringify(d));subs.forEach(f=>f());};
+  return {
+    async getCouple(c){const d=read(c);return d?d.couple:null;},
+    async createCouple(c,data){write(c,{couple:data,items:{}});},
+    watchItems(c,cb){const f=()=>{const d=read(c)||{items:{}};cb(Object.entries(d.items).map(([id,v])=>({id,...v})));};subs.add(f);f();return()=>subs.delete(f);},
+    async addItem(c,it){const d=read(c);d.items[newCode()]=it;write(c,d);},
+    async updateItem(c,id,p){const d=read(c);Object.assign(d.items[id],p);write(c,d);},
+    async deleteItem(c,id){const d=read(c);delete d.items[id];write(c,d);},
+  };
+}
+
+/* ---------- estado ---------- */
+let api, code=null, couple=null, me=null, items=[], tab="mine", unsub=null, editing=null, selEmoji="🎁", selPrio=2;
+const other=()=>me==="a"?"b":"a";
+const nameOf=(k)=>couple?.names?.[k]||"?";
+
+async function boot(){
+  try{ api=await makeApi(); }catch(e){ console.error(e); $("loading").textContent="Não consegui conectar ao banco de dados 😕"; return; }
+  code=(location.hash.slice(1)||ls("wl-code")||"").trim()||null;
+  if(!code){show("welcome");return;}
+  try{ couple=await api.getCouple(code); }catch(e){ console.error(e); }
+  if(!couple){ ls("wl-code",null); history.replaceState(null,"",location.pathname); show("welcome"); if(location.hash) toast("Código não encontrado"); return; }
+  ls("wl-code",code);
+  if(location.hash.slice(1)!==code) history.replaceState(null,"","#"+code);
+  me=ls("wl-me-"+code);
+  if(me!=="a"&&me!=="b"){askWho();return;}
+  startApp();
+}
+
+function askWho(){
+  $("whoButtons").innerHTML=["a","b"].map(k=>`<button data-k="${k}"><span>${k==="a"?"🙋":"🙋‍♀️"}</span>${esc(nameOf(k))}</button>`).join("");
+  $("whoButtons").querySelectorAll("button").forEach(b=>b.onclick=()=>{me=b.dataset.k;ls("wl-me-"+code,me);startApp();});
+  show("whoScreen");
+}
+
+function startApp(){
+  $("subtitle").textContent=`${nameOf("a")} & ${nameOf("b")}`;
+  $("tabTheirs").textContent=`🎀 Desejos de ${nameOf(other())}`;
+  $("theirsTitle").textContent=`O que ${nameOf(other())} quer ganhar`;
+  $("hideGiven").checked=ls("wl-hide")==="1";
+  if(unsub) unsub();
+  unsub=api.watchItems(code,(list)=>{items=list;render();});
+  setTab(tab);
+  show("app");
+}
+
+function setTab(t){
+  tab=t;
+  $("tabMine").classList.toggle("active",t==="mine");
+  $("tabTheirs").classList.toggle("active",t==="theirs");
+  $("mineView").classList.toggle("hidden",t!=="mine");
+  $("theirsView").classList.toggle("hidden",t!=="theirs");
+  $("fab").classList.toggle("hidden",t!=="mine");
+}
+
+/* ---------- render ---------- */
+const sortItems=(arr)=>arr.sort((x,y)=>(y.priority||0)-(x.priority||0)||(y.createdAt||0)-(x.createdAt||0));
+function itemHtml(it,mine){
+  const url=safeUrl(it.link);
+  const p=it.priority||1;
+  let badge="", actions="";
+  if(mine){
+    actions=`<button class="icon-btn" data-act="edit" title="Editar">✏️</button><button class="icon-btn" data-act="del" title="Apagar">🗑️</button>`;
+  }else{
+    if(it.status==="dado") badge=`<span class="badge done">✓ Já dado</span>`;
+    else if(it.status==="reservado") badge=`<span class="badge res">🎁 Reservado por você</span>`;
+    actions = it.status==="dado"
+      ? `<button class="btn ghost small" data-act="undo">Desfazer</button>`
+      : it.status==="reservado"
+        ? `<button class="btn green small" data-act="dado">✓ Já dei!</button><button class="btn ghost small" data-act="undo">Cancelar reserva</button>`
+        : `<button class="btn small" data-act="reservado">🎁 Vou dar esse</button><button class="btn ghost small" data-act="dado">✓ Já dei</button>`;
+  }
+  return `<article class="item ${!mine&&it.status==="dado"?"given":""}" data-id="${esc(it.id)}">
+    <div class="emoji">${esc(it.emoji||"🎁")}</div>
+    <div class="body">
+      <h3>${esc(it.title)}</h3>
+      <div class="meta">
+        <span class="prio" title="Prioridade">${"♥".repeat(p)}<span style="opacity:.25">${"♥".repeat(3-p)}</span></span>
+        ${it.price?`<span>💰 ${esc(it.price)}</span>`:""}
+        ${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc(hostOf(url))}</a>`:""}
+        ${badge}
+      </div>
+      ${it.note?`<p class="note">${esc(it.note)}</p>`:""}
+      <div class="actions">${actions}</div>
+    </div>
+  </article>`;
+}
+function render(){
+  const mine=sortItems(items.filter(i=>i.owner===me));
+  const theirs=sortItems(items.filter(i=>i.owner===other()));
+  $("mineList").innerHTML = mine.length ? mine.map(i=>itemHtml(i,true)).join("")
+    : `<div class="empty"><div class="big">🌟</div><p>Sua lista está vazia.<br>Que tal colocar o primeiro desejo?</p><button class="btn" data-act="add">＋ Adicionar desejo</button></div>`;
+  const hide=$("hideGiven").checked;
+  const visible=hide?theirs.filter(i=>i.status!=="dado"):theirs;
+  const nRes=theirs.filter(i=>i.status==="reservado").length, nDone=theirs.filter(i=>i.status==="dado").length;
+  $("stats").innerHTML = theirs.length?`<span class="pill"><b>${theirs.length}</b> desejos</span><span class="pill">🎁 <b>${nRes}</b> reservados</span><span class="pill">✓ <b>${nDone}</b> já dados</span>`:"";
+  $("theirsList").innerHTML = visible.length ? visible.map(i=>itemHtml(i,false)).join("")
+    : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${esc(nameOf(other()))} ainda não colocou nenhum desejo.<br>Manda o link pra ela(e) 😉`}</p></div>`;
+}
+
+/* ---------- ações ---------- */
+document.addEventListener("click",async(e)=>{
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const act=b.dataset.act;
+  if(act==="add") return openDlg(null);
+  const id=b.closest("[data-id]")?.dataset.id; const it=items.find(i=>i.id===id); if(!it) return;
+  try{
+    if(act==="edit") return openDlg(it);
+    if(act==="del"){ if(confirm(`Apagar "${it.title}"?`)){await api.deleteItem(code,id);toast("Desejo apagado");} return; }
+    if(act==="reservado"){await api.updateItem(code,id,{status:"reservado",statusAt:Date.now()});toast("Reservado! Segredo nosso 🤫");}
+    if(act==="dado"){await api.updateItem(code,id,{status:"dado",statusAt:Date.now()});toast("Presente dado! 💝");}
+    if(act==="undo"){await api.updateItem(code,id,{status:null,statusAt:Date.now()});toast("Desfeito");}
+  }catch(err){console.error(err);toast("Não deu certo, tenta de novo 😕");}
+});
+
+$("tabMine").onclick=()=>setTab("mine");
+$("tabTheirs").onclick=()=>setTab("theirs");
+$("hideGiven").onchange=()=>{ls("wl-hide",$("hideGiven").checked?"1":"0");render();};
+$("addBtn").onclick=()=>openDlg(null);
+$("fab").onclick=()=>openDlg(null);
+$("switchBtn").onclick=()=>{ls("wl-me-"+code,null);me=null;askWho();};
+$("shareBtn").onclick=async()=>{
+  const url=location.origin+location.pathname+"#"+code;
+  const text=`Fiz uma lista de desejos pra gente 💕 Coloca o que você quer ganhar:`;
+  if(navigator.share){try{await navigator.share({title:"Nossa Lista de Desejos",text,url});return;}catch{}}
+  try{await navigator.clipboard.writeText(url);toast("Link copiado! Manda pra ela(e) 💌");}catch{prompt("Copie o link:",url);}
+};
+
+$("createForm").onsubmit=async(e)=>{
+  e.preventDefault();
+  const a=$("nameA").value.trim(), b=$("nameB").value.trim(); if(!a||!b) return;
+  const c=newCode();
+  try{ await api.createCouple(c,{names:{a,b}}); }catch(err){console.error(err);toast("Não consegui criar 😕");return;}
+  code=c; couple={names:{a,b}}; me="a";
+  ls("wl-code",c); ls("wl-me-"+c,"a"); history.replaceState(null,"","#"+c);
+  startApp(); toast("Lista criada! Use 🔗 Compartilhar pra mandar o link");
+};
+$("joinForm").onsubmit=(e)=>{
+  e.preventDefault();
+  let v=$("joinCode").value.trim(); if(v.includes("#")) v=v.split("#").pop();
+  if(!v) return; location.hash=v; location.reload();
+};
+window.addEventListener("hashchange",()=>location.reload());
+
+/* ---------- diálogo ---------- */
+$("emojiPick").innerHTML=EMOJIS.map(x=>`<button type="button" data-e="${x}">${x}</button>`).join("");
+$("emojiPick").onclick=(e)=>{const b=e.target.closest("[data-e]");if(!b)return;selEmoji=b.dataset.e;markSel();};
+$("prioPick").onclick=(e)=>{const b=e.target.closest("[data-p]");if(!b)return;selPrio=+b.dataset.p;markSel();};
+function markSel(){
+  $("emojiPick").querySelectorAll("button").forEach(b=>b.classList.toggle("sel",b.dataset.e===selEmoji));
+  $("prioPick").querySelectorAll("button").forEach(b=>b.classList.toggle("sel",+b.dataset.p===selPrio));
+}
+function openDlg(it){
+  editing=it;
+  $("dlgTitle").textContent=it?"Editar desejo":"Novo desejo";
+  $("fTitle").value=it?.title||""; $("fPrice").value=it?.price||""; $("fLink").value=it?.link||""; $("fNote").value=it?.note||"";
+  selEmoji=it?.emoji||"🎁"; selPrio=it?.priority||2; markSel();
+  $("itemDlg").showModal(); setTimeout(()=>$("fTitle").focus(),50);
+}
+$("dlgCancel").onclick=()=>$("itemDlg").close();
+$("itemForm").onsubmit=async(e)=>{
+  e.preventDefault();
+  const data={title:$("fTitle").value.trim(),price:$("fPrice").value.trim(),link:$("fLink").value.trim(),note:$("fNote").value.trim(),emoji:selEmoji,priority:selPrio};
+  if(!data.title) return;
+  $("dlgSave").disabled=true;
+  try{
+    if(editing){await api.updateItem(code,editing.id,data);toast("Desejo atualizado ✨");}
+    else{await api.addItem(code,{...data,owner:me,status:null,createdAt:Date.now()});toast("Desejo adicionado ✨");}
+    $("itemDlg").close();
+  }catch(err){console.error(err);toast("Não consegui salvar 😕");}
+  finally{$("dlgSave").disabled=false;}
+};
+
+boot();
+</script>
+</body>
+</html>
