@@ -6,4 +6,4 @@ Um site simples pra um casal montar a lista de presentes que quer ganhar, ver a 
 - `firebase-config.js`: configuração do banco (Firebase Firestore, plano gratuito)
 - `firestore.rules`: regras de segurança pra colar no Firebase
 
-Sem configuração do Firebase, o site roda em modo demonstração (salva só no navegador).
+O acesso é só com login (Felipe ou Mayara), e cada um só vê as reservas que ele mesmo fez.

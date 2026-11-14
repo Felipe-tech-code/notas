@@ -1,13 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Só quem tem o código secreto do casal (que vai no link) consegue ler e escrever.
-    // Listar todos os casais é proibido, então ninguém descobre códigos.
-    match /couples/{code} {
-      allow get, create, update: if code.size() >= 12;
-      match /items/{itemId} {
-        allow read, write: if code.size() >= 12;
-      }
+    function isUs() {
+      return request.auth != null
+        && request.auth.token.email in ['felipe@nossalista.local', 'mayara@nossalista.local'];
+    }
+    function me() {
+      return request.auth.token.email.split('@')[0];
+    }
+
+    // Desejos: os dois leem; cada um só cria, edita e apaga os próprios.
+    match /lists/nossa/items/{itemId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.owner == me();
+      allow update: if isUs() && resource.data.owner == me() && request.resource.data.owner == me();
+      allow delete: if isUs() && resource.data.owner == me();
+    }
+
+    // Reservas e "já dei": cada um só vê e mexe nas próprias marcações.
+    // Assim o dono do desejo não consegue ver o que foi reservado pra ele.
+    match /lists/nossa/marks/{giver}/items/{itemId} {
+      allow read, write: if isUs() && giver == me();
     }
   }
 }

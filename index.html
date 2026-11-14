@@ -159,45 +159,29 @@ dialog h2{font-size:24px;margin-bottom:4px}
   <header class="top">
     <div class="brand">
       <div class="logo">🎁</div>
-      <div><h1>Nossa Lista de Desejos</h1><small id="subtitle">pra ninguém mais errar o presente</small></div>
+      <div><h1>Nossa Lista de Desejos</h1><small id="subtitle">Felipe & Mayara</small></div>
     </div>
-    <div id="topActions" class="hidden" style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn ghost small" id="shareBtn">🔗 Compartilhar</button>
-      <button class="btn ghost small" id="switchBtn" title="Trocar quem está usando">🔄 Trocar</button>
-    </div>
+    <div id="topActions" class="hidden"><button class="btn ghost small" id="logoutBtn">🚪 Sair</button></div>
   </header>
 
-  <div id="demoBanner" class="banner hidden">
-    <b>Modo demonstração:</b> o banco de dados ainda não foi configurado, então tudo fica salvo só neste navegador.
-  </div>
 
   <div id="loading" class="loading">Carregando…</div>
 
-  <!-- 1. Boas-vindas -->
-  <section id="welcome" class="card hero hidden">
-    <div class="big">💝</div>
-    <h2>Uma lista de presentes a dois</h2>
-    <p>Cada um coloca o que quer ganhar. O outro vê, escolhe e marca o que já deu, e quem fez o pedido não vê o que foi marcado. A surpresa fica garantida.</p>
-    <form id="createForm" style="max-width:420px;margin:0 auto;text-align:left">
-      <div class="row">
-        <div><label for="nameA">Seu nome</label><input id="nameA" required maxlength="30" placeholder="Ex.: Felipe"></div>
-        <div><label for="nameB">Nome do seu amor</label><input id="nameB" required maxlength="30" placeholder="Ex.: Ana"></div>
+  <!-- 1. Login -->
+  <section id="login" class="card hero hidden">
+    <div class="big">🔐</div>
+    <h2>Só pra nós dois</h2>
+    <p>Escolha quem é você e digite sua senha.</p>
+    <form id="loginForm" style="max-width:380px;margin:0 auto;text-align:left">
+      <div class="who" id="whoButtons" style="margin-top:0">
+        <button type="button" data-k="felipe"><span>🙋‍♂️</span>Felipe</button>
+        <button type="button" data-k="mayara"><span>🙋‍♀️</span>Mayara</button>
       </div>
-      <button class="btn" style="width:100%;margin-top:18px" type="submit">Criar nossa lista 💕</button>
+      <label for="pass">Senha</label>
+      <input id="pass" type="password" autocomplete="current-password" required placeholder="sua senha">
+      <p id="loginErr" style="color:var(--rose-d);font-size:14px;margin:10px 0 0;min-height:1em"></p>
+      <button class="btn" id="loginBtn" style="width:100%;margin-top:10px" type="submit">Entrar 💕</button>
     </form>
-    <div class="divider" style="max-width:420px;margin-left:auto;margin-right:auto">ou</div>
-    <form id="joinForm" style="max-width:420px;margin:0 auto;text-align:left">
-      <label for="joinCode">Já tenho um código</label>
-      <div style="display:flex;gap:8px"><input id="joinCode" placeholder="cole o código aqui" required><button class="btn ghost" type="submit">Entrar</button></div>
-    </form>
-  </section>
-
-  <!-- 2. Quem é você -->
-  <section id="whoScreen" class="card hero hidden">
-    <div class="big">👀</div>
-    <h2>Quem está aqui?</h2>
-    <p>Escolha seu nome. Este aparelho vai lembrar de você.</p>
-    <div class="who" id="whoButtons"></div>
   </section>
 
   <!-- 3. App -->
@@ -261,116 +245,88 @@ dialog h2{font-size:24px;margin-bottom:4px}
 
 <script type="module">
 import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import * as fs from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const $ = (id) => document.getElementById(id);
 const EMOJIS = ["🎁","👗","👟","📚","💄","💍","🎮","🎧","🌸","🍫","☕","✈️","🧸","🖼️","🪴","💻"];
+const PEOPLE = { felipe: "Felipe", mayara: "Mayara" };
+const EMAIL_DOMAIN = "nossalista.local";   // os usuários no Firebase são felipe@nossalista.local e mayara@nossalista.local
 
 /* ---------- utilidades ---------- */
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function safeUrl(u){try{const x=new URL(u);return (x.protocol==="https:"||x.protocol==="http:")?x.href:"";}catch{return "";}}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{return "";}}
-function newCode(){const a="abcdefghjkmnpqrstuvwxyz23456789";const r=crypto.getRandomValues(new Uint8Array(16));return Array.from(r,b=>a[b%a.length]).join("");}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch{return null;}}
 let toastT; function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2400);}
-function show(id){["loading","welcome","whoScreen","app"].forEach(s=>$(s).classList.toggle("hidden",s!==id));$("topActions").classList.toggle("hidden",id!=="app");$("fab").classList.toggle("hidden",!(id==="app"&&tab==="mine"));}
+function show(id){["loading","login","app"].forEach(s=>$(s).classList.toggle("hidden",s!==id));$("topActions").classList.toggle("hidden",id!=="app");$("fab").classList.toggle("hidden",!(id==="app"&&tab==="mine"));}
 
-/* corações flutuando */
 (()=>{const h=$("hearts");const set=["💗","💕","🎀","✨","💖"];for(let i=0;i<14;i++){const s=document.createElement("span");s.textContent=set[i%set.length];s.style.left=Math.random()*100+"%";s.style.animationDuration=(14+Math.random()*16)+"s";s.style.animationDelay=(-Math.random()*25)+"s";s.style.fontSize=(14+Math.random()*16)+"px";h.appendChild(s);}})();
 
-/* ---------- camada de dados ---------- */
-async function makeApi(){
-  if(firebaseConfig && firebaseConfig.projectId){
-    const V="10.12.2";
-    const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
-    const fs = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
-    const db = fs.getFirestore(initializeApp(firebaseConfig));
-    const items = (code)=>fs.collection(db,"couples",code,"items");
-    return {
-      async getCouple(code){const s=await fs.getDoc(fs.doc(db,"couples",code));return s.exists()?s.data():null;},
-      async createCouple(code,data){await fs.setDoc(fs.doc(db,"couples",code),{...data,createdAt:Date.now()});},
-      watchItems(code,cb){return fs.onSnapshot(items(code),snap=>cb(snap.docs.map(d=>({id:d.id,...d.data()}))),err=>{console.error(err);toast("Erro ao sincronizar 😕");});},
-      async addItem(code,it){await fs.addDoc(items(code),it);},
-      async updateItem(code,id,p){await fs.updateDoc(fs.doc(db,"couples",code,"items",id),p);},
-      async deleteItem(code,id){await fs.deleteDoc(fs.doc(db,"couples",code,"items",id));},
-    };
-  }
-  // modo demonstração: localStorage
-  $("demoBanner").classList.remove("hidden");
-  const key=(c)=>"wl-demo-"+c; const subs=new Set();
-  const read=(c)=>{try{return JSON.parse(ls(key(c))||"null");}catch{return null;}};
-  const write=(c,d)=>{ls(key(c),JSON.stringify(d));subs.forEach(f=>f());};
-  return {
-    async getCouple(c){const d=read(c);return d?d.couple:null;},
-    async createCouple(c,data){write(c,{couple:data,items:{}});},
-    watchItems(c,cb){const f=()=>{const d=read(c)||{items:{}};cb(Object.entries(d.items).map(([id,v])=>({id,...v})));};subs.add(f);f();return()=>subs.delete(f);},
-    async addItem(c,it){const d=read(c);d.items[newCode()]=it;write(c,d);},
-    async updateItem(c,id,p){const d=read(c);Object.assign(d.items[id],p);write(c,d);},
-    async deleteItem(c,id){const d=read(c);delete d.items[id];write(c,d);},
-  };
-}
+/* ---------- Firebase ---------- */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = fs.getFirestore(app);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
+const itemsCol = () => fs.collection(db, "lists", "nossa", "items");
+// As marcações (reservado / dado) ficam numa pasta de quem vai dar: o dono do desejo não tem permissão de ler.
+const marksCol = () => fs.collection(db, "lists", "nossa", "marks", me, "items");
 
 /* ---------- estado ---------- */
-let api, code=null, couple=null, me=null, items=[], tab="mine", unsub=null, editing=null, selEmoji="🎁", selPrio=2;
-const other=()=>me==="a"?"b":"a";
-const nameOf=(k)=>couple?.names?.[k]||"?";
+let me=null, items=[], marks={}, tab="mine", unsubs=[], editing=null, selEmoji="🎁", selPrio=2, pick=ls("wl-last")||"felipe";
+const other=()=>me==="felipe"?"mayara":"felipe";
 
-async function boot(){
-  try{ api=await makeApi(); }catch(e){ console.error(e); $("loading").textContent="Não consegui conectar ao banco de dados 😕"; return; }
-  code=(location.hash.slice(1)||ls("wl-code")||"").trim()||null;
-  if(!code){show("welcome");return;}
-  try{ couple=await api.getCouple(code); }catch(e){ console.error(e); }
-  if(!couple){ ls("wl-code",null); history.replaceState(null,"",location.pathname); show("welcome"); if(location.hash) toast("Código não encontrado"); return; }
-  ls("wl-code",code);
-  if(location.hash.slice(1)!==code) history.replaceState(null,"","#"+code);
-  me=ls("wl-me-"+code);
-  if(me!=="a"&&me!=="b"){askWho();return;}
-  startApp();
-}
+onAuthStateChanged(auth,(user)=>{
+  unsubs.forEach(u=>u()); unsubs=[];
+  const k = user?.email?.split("@")[0];
+  if(!user || !PEOPLE[k]){ me=null; markPick(); show("login"); return; }
+  me=k; ls("wl-last",k); startApp();
+});
 
-function askWho(){
-  $("whoButtons").innerHTML=["a","b"].map(k=>`<button data-k="${k}"><span>${k==="a"?"🙋":"🙋‍♀️"}</span>${esc(nameOf(k))}</button>`).join("");
-  $("whoButtons").querySelectorAll("button").forEach(b=>b.onclick=()=>{me=b.dataset.k;ls("wl-me-"+code,me);startApp();});
-  show("whoScreen");
-}
+/* ---------- login ---------- */
+function markPick(){ $("whoButtons").querySelectorAll("button").forEach(b=>b.style.borderColor=b.dataset.k===pick?"var(--rose)":""); }
+$("whoButtons").onclick=(e)=>{const b=e.target.closest("[data-k]");if(!b)return;pick=b.dataset.k;markPick();$("pass").focus();};
+$("loginForm").onsubmit=async(e)=>{
+  e.preventDefault(); $("loginErr").textContent=""; $("loginBtn").disabled=true;
+  try{ await signInWithEmailAndPassword(auth, `${pick}@${EMAIL_DOMAIN}`, $("pass").value); $("pass").value=""; }
+  catch(err){ console.error(err); $("loginErr").textContent = err.code==="auth/too-many-requests" ? "Muitas tentativas. Espere um pouco e tente de novo." : "Senha incorreta 😕"; }
+  finally{ $("loginBtn").disabled=false; }
+};
+$("logoutBtn").onclick=()=>signOut(auth);
 
+/* ---------- app ---------- */
 function startApp(){
-  $("subtitle").textContent=`${nameOf("a")} & ${nameOf("b")}`;
-  $("tabTheirs").textContent=`🎀 Desejos de ${nameOf(other())}`;
-  $("theirsTitle").textContent=`O que ${nameOf(other())} quer ganhar`;
+  $("subtitle").textContent=`Olá, ${PEOPLE[me]} 💕`;
+  $("tabTheirs").textContent=`🎀 Desejos d${me==="felipe"?"a":"o"} ${PEOPLE[other()]}`;
+  $("theirsTitle").textContent=`O que ${me==="felipe"?"a":"o"} ${PEOPLE[other()]} quer ganhar`;
   $("hideGiven").checked=ls("wl-hide")==="1";
-  if(unsub) unsub();
-  unsub=api.watchItems(code,(list)=>{items=list;render();});
-  setTab(tab);
-  show("app");
+  const err=(e)=>{console.error(e);toast("Erro ao sincronizar 😕");};
+  unsubs.push(fs.onSnapshot(itemsCol(),s=>{items=s.docs.map(d=>({id:d.id,...d.data()}));render();},err));
+  unsubs.push(fs.onSnapshot(marksCol(),s=>{marks={};s.docs.forEach(d=>marks[d.id]=d.data().status);render();},err));
+  setTab(tab); show("app");
 }
-
 function setTab(t){
   tab=t;
-  $("tabMine").classList.toggle("active",t==="mine");
-  $("tabTheirs").classList.toggle("active",t==="theirs");
-  $("mineView").classList.toggle("hidden",t!=="mine");
-  $("theirsView").classList.toggle("hidden",t!=="theirs");
+  $("tabMine").classList.toggle("active",t==="mine"); $("tabTheirs").classList.toggle("active",t==="theirs");
+  $("mineView").classList.toggle("hidden",t!=="mine"); $("theirsView").classList.toggle("hidden",t!=="theirs");
   $("fab").classList.toggle("hidden",t!=="mine");
 }
 
-/* ---------- render ---------- */
 const sortItems=(arr)=>arr.sort((x,y)=>(y.priority||0)-(x.priority||0)||(y.createdAt||0)-(x.createdAt||0));
 function itemHtml(it,mine){
-  const url=safeUrl(it.link);
-  const p=it.priority||1;
+  const url=safeUrl(it.link), p=it.priority||1, st=mine?null:marks[it.id];
   let badge="", actions="";
   if(mine){
     actions=`<button class="icon-btn" data-act="edit" title="Editar">✏️</button><button class="icon-btn" data-act="del" title="Apagar">🗑️</button>`;
   }else{
-    if(it.status==="dado") badge=`<span class="badge done">✓ Já dado</span>`;
-    else if(it.status==="reservado") badge=`<span class="badge res">🎁 Reservado por você</span>`;
-    actions = it.status==="dado"
-      ? `<button class="btn ghost small" data-act="undo">Desfazer</button>`
-      : it.status==="reservado"
-        ? `<button class="btn green small" data-act="dado">✓ Já dei!</button><button class="btn ghost small" data-act="undo">Cancelar reserva</button>`
-        : `<button class="btn small" data-act="reservado">🎁 Vou dar esse</button><button class="btn ghost small" data-act="dado">✓ Já dei</button>`;
+    if(st==="dado") badge=`<span class="badge done">✓ Já dado</span>`;
+    else if(st==="reservado") badge=`<span class="badge res">🎁 Reservado por você</span>`;
+    actions = st==="dado" ? `<button class="btn ghost small" data-act="undo">Desfazer</button>`
+      : st==="reservado" ? `<button class="btn green small" data-act="dado">✓ Já dei!</button><button class="btn ghost small" data-act="undo">Cancelar reserva</button>`
+      : `<button class="btn small" data-act="reservado">🎁 Vou dar esse</button><button class="btn ghost small" data-act="dado">✓ Já dei</button>`;
   }
-  return `<article class="item ${!mine&&it.status==="dado"?"given":""}" data-id="${esc(it.id)}">
+  return `<article class="item ${st==="dado"?"given":""}" data-id="${esc(it.id)}">
     <div class="emoji">${esc(it.emoji||"🎁")}</div>
     <div class="body">
       <h3>${esc(it.title)}</h3>
@@ -386,30 +342,31 @@ function itemHtml(it,mine){
   </article>`;
 }
 function render(){
+  if(!me) return;
   const mine=sortItems(items.filter(i=>i.owner===me));
   const theirs=sortItems(items.filter(i=>i.owner===other()));
   $("mineList").innerHTML = mine.length ? mine.map(i=>itemHtml(i,true)).join("")
     : `<div class="empty"><div class="big">🌟</div><p>Sua lista está vazia.<br>Que tal colocar o primeiro desejo?</p><button class="btn" data-act="add">＋ Adicionar desejo</button></div>`;
   const hide=$("hideGiven").checked;
-  const visible=hide?theirs.filter(i=>i.status!=="dado"):theirs;
-  const nRes=theirs.filter(i=>i.status==="reservado").length, nDone=theirs.filter(i=>i.status==="dado").length;
+  const visible=hide?theirs.filter(i=>marks[i.id]!=="dado"):theirs;
+  const nRes=theirs.filter(i=>marks[i.id]==="reservado").length, nDone=theirs.filter(i=>marks[i.id]==="dado").length;
   $("stats").innerHTML = theirs.length?`<span class="pill"><b>${theirs.length}</b> desejos</span><span class="pill">🎁 <b>${nRes}</b> reservados</span><span class="pill">✓ <b>${nDone}</b> já dados</span>`:"";
   $("theirsList").innerHTML = visible.length ? visible.map(i=>itemHtml(i,false)).join("")
-    : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${esc(nameOf(other()))} ainda não colocou nenhum desejo.<br>Manda o link pra ela(e) 😉`}</p></div>`;
+    : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${PEOPLE[other()]} ainda não colocou nenhum desejo.`}</p></div>`;
 }
 
-/* ---------- ações ---------- */
 document.addEventListener("click",async(e)=>{
-  const b=e.target.closest("[data-act]"); if(!b) return;
+  const b=e.target.closest("[data-act]"); if(!b||!me) return;
   const act=b.dataset.act;
   if(act==="add") return openDlg(null);
   const id=b.closest("[data-id]")?.dataset.id; const it=items.find(i=>i.id===id); if(!it) return;
+  const markRef=fs.doc(db,"lists","nossa","marks",me,"items",id);
   try{
     if(act==="edit") return openDlg(it);
-    if(act==="del"){ if(confirm(`Apagar "${it.title}"?`)){await api.deleteItem(code,id);toast("Desejo apagado");} return; }
-    if(act==="reservado"){await api.updateItem(code,id,{status:"reservado",statusAt:Date.now()});toast("Reservado! Segredo nosso 🤫");}
-    if(act==="dado"){await api.updateItem(code,id,{status:"dado",statusAt:Date.now()});toast("Presente dado! 💝");}
-    if(act==="undo"){await api.updateItem(code,id,{status:null,statusAt:Date.now()});toast("Desfeito");}
+    if(act==="del"){ if(confirm(`Apagar "${it.title}"?`)){await fs.deleteDoc(fs.doc(itemsCol(),id));toast("Desejo apagado");} return; }
+    if(act==="reservado"){await fs.setDoc(markRef,{status:"reservado",at:Date.now()});toast("Reservado! Segredo nosso 🤫");}
+    if(act==="dado"){await fs.setDoc(markRef,{status:"dado",at:Date.now()});toast("Presente dado! 💝");}
+    if(act==="undo"){await fs.deleteDoc(markRef);toast("Desfeito");}
   }catch(err){console.error(err);toast("Não deu certo, tenta de novo 😕");}
 });
 
@@ -418,29 +375,6 @@ $("tabTheirs").onclick=()=>setTab("theirs");
 $("hideGiven").onchange=()=>{ls("wl-hide",$("hideGiven").checked?"1":"0");render();};
 $("addBtn").onclick=()=>openDlg(null);
 $("fab").onclick=()=>openDlg(null);
-$("switchBtn").onclick=()=>{ls("wl-me-"+code,null);me=null;askWho();};
-$("shareBtn").onclick=async()=>{
-  const url=location.origin+location.pathname+"#"+code;
-  const text=`Fiz uma lista de desejos pra gente 💕 Coloca o que você quer ganhar:`;
-  if(navigator.share){try{await navigator.share({title:"Nossa Lista de Desejos",text,url});return;}catch{}}
-  try{await navigator.clipboard.writeText(url);toast("Link copiado! Manda pra ela(e) 💌");}catch{prompt("Copie o link:",url);}
-};
-
-$("createForm").onsubmit=async(e)=>{
-  e.preventDefault();
-  const a=$("nameA").value.trim(), b=$("nameB").value.trim(); if(!a||!b) return;
-  const c=newCode();
-  try{ await api.createCouple(c,{names:{a,b}}); }catch(err){console.error(err);toast("Não consegui criar 😕");return;}
-  code=c; couple={names:{a,b}}; me="a";
-  ls("wl-code",c); ls("wl-me-"+c,"a"); history.replaceState(null,"","#"+c);
-  startApp(); toast("Lista criada! Use 🔗 Compartilhar pra mandar o link");
-};
-$("joinForm").onsubmit=(e)=>{
-  e.preventDefault();
-  let v=$("joinCode").value.trim(); if(v.includes("#")) v=v.split("#").pop();
-  if(!v) return; location.hash=v; location.reload();
-};
-window.addEventListener("hashchange",()=>location.reload());
 
 /* ---------- diálogo ---------- */
 $("emojiPick").innerHTML=EMOJIS.map(x=>`<button type="button" data-e="${x}">${x}</button>`).join("");
@@ -464,14 +398,12 @@ $("itemForm").onsubmit=async(e)=>{
   if(!data.title) return;
   $("dlgSave").disabled=true;
   try{
-    if(editing){await api.updateItem(code,editing.id,data);toast("Desejo atualizado ✨");}
-    else{await api.addItem(code,{...data,owner:me,status:null,createdAt:Date.now()});toast("Desejo adicionado ✨");}
+    if(editing){await fs.updateDoc(fs.doc(itemsCol(),editing.id),data);toast("Desejo atualizado ✨");}
+    else{await fs.addDoc(itemsCol(),{...data,owner:me,createdAt:Date.now()});toast("Desejo adicionado ✨");}
     $("itemDlg").close();
   }catch(err){console.error(err);toast("Não consegui salvar 😕");}
   finally{$("dlgSave").disabled=false;}
 };
-
-boot();
 </script>
 </body>
 </html>
