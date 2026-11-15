@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nossa Lista de Desejos</title>
-<meta name="description" content="A lista de desejos do casal: cada um coloca o que quer ganhar e o outro marca o que já deu.">
+<title>Nós</title>
+<meta name="description" content="Só nossa.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,7 +189,7 @@ dialog h2{font-size:24px;margin-bottom:4px}
   <header class="top">
     <div class="brand">
       <div class="logo">🎁</div>
-      <div><h1>Nossa Lista de Desejos</h1><small id="subtitle">Felipe & Mayara</small></div>
+      <div><h1>Nós</h1><small id="subtitle">só nossa</small></div>
     </div>
     <div id="topActions" class="hidden"><button class="btn ghost small" id="logoutBtn">🚪 Sair</button></div>
   </header>
@@ -204,8 +204,8 @@ dialog h2{font-size:24px;margin-bottom:4px}
     <p>Escolha quem é você e digite sua senha.</p>
     <form id="loginForm" style="max-width:380px;margin:0 auto;text-align:left">
       <div class="who" id="whoButtons" style="margin-top:0">
-        <button type="button" data-k="felipe"><span>🙋‍♂️</span>Felipe</button>
-        <button type="button" data-k="mayara"><span>🙋‍♀️</span>Mayara</button>
+        <button type="button" data-k="felipe"><span>🙋‍♂️</span>Ele</button>
+        <button type="button" data-k="mayara"><span>🙋‍♀️</span>Ela</button>
       </div>
       <label for="pass">Senha</label>
       <input id="pass" type="password" autocomplete="current-password" required placeholder="sua senha">
@@ -319,6 +319,21 @@ dialog h2{font-size:24px;margin-bottom:4px}
   </form>
 </dialog>
 
+<dialog id="namesDlg">
+  <form id="namesForm" method="dialog">
+    <h2>Nossos apelidos 💞</h2>
+    <p style="color:var(--muted);margin:4px 0 0">Ficam guardados só pra quem entra com senha. Deixe em branco pra aparecer só "ele" e "ela".</p>
+    <div class="row">
+      <div><label for="nameEle">Ele</label><input id="nameEle" maxlength="20" placeholder="Ex.: Mozão"></div>
+      <div><label for="nameEla">Ela</label><input id="nameEla" maxlength="20" placeholder="Ex.: Princesa"></div>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="namesCancel">Cancelar</button>
+      <button type="submit" class="btn">Salvar 💕</button>
+    </div>
+  </form>
+</dialog>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -329,9 +344,15 @@ import * as fs from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firesto
 
 const $ = (id) => document.getElementById(id);
 const EMOJIS = ["🎁","👗","👟","📚","💄","💍","🎮","🎧","🌸","🍫","☕","✈️","🧸","🖼️","🪴","💻"];
-const PEOPLE = { felipe: "Felipe", mayara: "Mayara" };
+const PEOPLE = { felipe: 1, mayara: 1 };   // chaves dos usuários (felipe@… = ele, mayara@… = ela)
 const EMAIL_DOMAIN = "nossalista.local";   // os usuários no Firebase são felipe@nossalista.local e mayara@nossalista.local
-const art = (k) => k==="mayara" ? "a" : "o";   // "da Mayara" / "do Felipe"
+const art = (k) => k==="mayara" ? "a" : "o";
+// Apelidos ficam salvos no banco (só aparecem depois do login). Sem apelido: "ele" / "ela".
+const custom = (k) => !!(meta.names && String(meta.names[k]||"").trim());
+const who = (k) => custom(k) ? String(meta.names[k]).trim() : (k==="mayara" ? "ela" : "ele");
+const Who = (k) => { const n = who(k); return n.charAt(0).toUpperCase() + n.slice(1); };
+const de = (k) => custom(k) ? `d${art(k)} ${who(k)}` : (k==="mayara" ? "dela" : "dele");
+const para = (k) => custom(k) ? `pr${art(k)} ${who(k)}` : `pra ${who(k)}`;
 
 /* ---------- utilidades ---------- */
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -382,10 +403,14 @@ $("loginForm").onsubmit=async(e)=>{
 $("logoutBtn").onclick=()=>signOut(auth);
 
 /* ---------- app ---------- */
+function labels(){
+  if(!me) return;
+  $("subtitle").textContent= custom(me) ? `Olá, ${who(me)} 💕` : "só nossa 💕";
+  $("tabTheirs").textContent=`🎀 ${Who(other())}`;
+  $("theirsTitle").textContent= custom(other()) ? `O que ${art(other())} ${who(other())} quer ganhar` : `O que ${who(other())} quer ganhar`;
+}
 function startApp(){
-  $("subtitle").textContent=`Olá, ${PEOPLE[me]} 💕`;
-  $("tabTheirs").textContent=`🎀 ${PEOPLE[other()]}`;
-  $("theirsTitle").textContent=`O que ${art(other())} ${PEOPLE[other()]} quer ganhar`;
+  labels();
   $("hideGiven").checked=ls("wl-hide")==="1";
   const err=(e)=>{console.error(e);toast("Erro ao sincronizar 😕");};
   const watch=(c,fn)=>unsubs.push(fs.onSnapshot(c,fn,err));
@@ -393,7 +418,7 @@ function startApp(){
   watch(col("marks",me,"items"),s=>{marks={};s.docs.forEach(d=>marks[d.id]=d.data().status);render();});
   watch(col("given"),s=>{given={};s.docs.forEach(d=>given[d.id]={id:d.id,...d.data()});render();});
   watch(col("notes"),s=>{notes=s.docs.map(d=>({id:d.id,...d.data()}));renderUs();});
-  watch(ref("meta","info"),s=>{meta=s.exists()?s.data():{};renderUs();});
+  watch(ref("meta","info"),s=>{meta=s.exists()?s.data():{};labels();render();});
   setTab(ls("wl-tab")||"mine"); show("app");
 }
 function setTab(t){
@@ -411,7 +436,7 @@ function itemHtml(it,mine){
   const url=safeUrl(it.link), p=it.priority||1, g=given[it.id], st=mine?null:statusOf(it);
   let badge="", actions="", extra="", cls="";
   if(mine){
-    if(g){ cls="got"; badge=`<span class="badge got">💝 Ganhei d${art(g.giver)} ${esc(PEOPLE[g.giver])}${g.date?` · ${esc(fmtDay(g.date))}`:""}</span>`;
+    if(g){ cls="got"; badge=`<span class="badge got">💝 Ganhei ${esc(de(g.giver))}${g.date?` · ${esc(fmtDay(g.date))}`:""}</span>`;
            if(g.note) extra=`<p class="dedic">“${esc(g.note)}”</p>`; }
     actions=`${g?"":`<button class="icon-btn" data-act="edit" title="Editar">✏️</button>`}<button class="icon-btn" data-act="del" title="Apagar">🗑️</button>`;
   }else{
@@ -450,17 +475,17 @@ function render(){
   const nRes=theirs.filter(i=>statusOf(i)==="reservado").length, nDone=theirs.filter(i=>statusOf(i)==="dado").length;
   $("stats").innerHTML = theirs.length?`<span class="pill"><b>${theirs.length}</b> desejos</span><span class="pill">🎁 <b>${nRes}</b> reservados</span><span class="pill">✓ <b>${nDone}</b> já dados</span>`:"";
   $("theirsList").innerHTML = visible.length ? visible.map(i=>itemHtml(i,false)).join("")
-    : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${PEOPLE[other()]} ainda não colocou nenhum desejo.`}</p></div>`;
+    : `<div class="empty"><div class="big">${theirs.length?"🎉":"⏳"}</div><p>${theirs.length?"Você já deu tudo da lista! Que amor.":`${esc(Who(other()))} ainda não colocou nenhum desejo.`}</p></div>`;
   renderUs();
 }
 
 /* ---------- aba Nós ---------- */
 function renderUs(){
   if(!me) return;
-  const names=`${PEOPLE.felipe} <span class="h">💞</span> ${PEOPLE.mayara}`;
+  const names=`${esc(Who("felipe"))} <span class="h">💞</span> ${esc(Who("mayara"))}`;
   const s=parseDay(meta.since);
   if(!s){
-    $("together").innerHTML=`<div class="names">${names}</div><p class="sub" style="margin:12px 0 16px">Quando foi que tudo começou?</p><button class="btn" data-act="since">💕 Colocar a data do nosso namoro</button>`;
+    $("together").innerHTML=`<div class="names">${names}</div><p class="sub" style="margin:12px 0 16px">Quando foi que tudo começou?</p><button class="btn" data-act="since">💕 Colocar a data do nosso namoro</button><div class="chips"><button class="btn ghost small" data-act="names">✏️ apelidos</button></div>`;
   }else{
     const t=parseDay(todayStr()), days=dayNum(t)-dayNum(s);
     let months=(t.y-s.y)*12+(t.m-s.m); if(t.d<s.d) months--;
@@ -476,20 +501,20 @@ function renderUs(){
     $("together").innerHTML=`<div class="names">${names}</div>
       <div class="days">${days.toLocaleString("pt-BR")}</div>
       <div class="sub">dias juntos${parts.length?` · ${parts.join(" e ")}`:""} · desde ${esc(fmtDay(meta.since))}</div>
-      <div class="chips"><span class="pill">${nextLabel}</span><button class="btn ghost small" data-act="since">✏️ data</button></div>`;
+      <div class="chips"><span class="pill">${nextLabel}</span><button class="btn ghost small" data-act="since">✏️ data</button><button class="btn ghost small" data-act="names">✏️ apelidos</button></div>`;
   }
   // recadinhos
   const ns=[...notes].sort((a,b)=>(b.at||0)-(a.at||0));
   $("notesList").innerHTML = ns.length ? ns.map((n,i)=>`<div class="note ${esc(n.from)}" style="--r:${[-1.5,1,-0.5,1.5,0.5,-1][i%6]}deg" data-note="${esc(n.id)}">${esc(n.text)}
-      <div class="from"><span>— ${esc(PEOPLE[n.from]||"")}, ${new Date(n.at).toLocaleDateString("pt-BR",{day:"numeric",month:"short"})}</span>${n.from===me?`<button class="icon-btn" data-act="delnote" title="Apagar">✕</button>`:""}</div></div>`).join("")
+      <div class="from"><span>— ${esc(Who(n.from))}, ${new Date(n.at).toLocaleDateString("pt-BR",{day:"numeric",month:"short"})}</span>${n.from===me?`<button class="icon-btn" data-act="delnote" title="Apagar">✕</button>`:""}</div></div>`).join("")
     : `<div class="empty" style="grid-column:1/-1"><div class="big">💌</div><p>O potinho está vazio. Deixa o primeiro recadinho!</p></div>`;
   // presentes trocados
   const gs=Object.values(given).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||(b.at||0)-(a.at||0));
   const by=(k)=>gs.filter(g=>g.giver===k).length;
-  $("giftStats").innerHTML = gs.length?`<span class="pill">🎁 <b>${gs.length}</b> presente${gs.length>1?"s":""} trocado${gs.length>1?"s":""}</span><span class="pill">${PEOPLE.felipe} deu <b>${by("felipe")}</b></span><span class="pill">${PEOPLE.mayara} deu <b>${by("mayara")}</b></span>`:"";
+  $("giftStats").innerHTML = gs.length?`<span class="pill">🎁 <b>${gs.length}</b> presente${gs.length>1?"s":""} trocado${gs.length>1?"s":""}</span><span class="pill">${esc(Who("felipe"))} deu <b>${by("felipe")}</b></span><span class="pill">${esc(Who("mayara"))} deu <b>${by("mayara")}</b></span>`:"";
   $("timeline").innerHTML = gs.length ? gs.map(g=>`<div class="tl"><div class="card">
       <div class="when">${esc(fmtDay(g.date)||"")}</div>
-      <div class="what">${esc(g.emoji||"🎁")} <b>${esc(PEOPLE[g.giver])}</b> deu <b>${esc(g.title)}</b> pr${art(g.receiver)} <b>${esc(PEOPLE[g.receiver])}</b></div>
+      <div class="what">${esc(g.emoji||"🎁")} <b>${esc(Who(g.giver))}</b> deu <b>${esc(g.title)}</b> ${esc(para(g.receiver))}</div>
       ${g.note?`<p class="dedic">“${esc(g.note)}”</p>`:""}</div></div>`).join("")
     : `<div class="empty" style="margin-left:-26px"><div class="big">🎀</div><p>Quando um presente for marcado como "Já dei", ele aparece aqui pra sempre.</p></div>`;
 }
@@ -501,6 +526,7 @@ document.addEventListener("click",async(e)=>{
   try{
     if(act==="add") return openDlg(null);
     if(act==="since"){ $("sinceDate").value=meta.since||""; $("sinceDate").max=todayStr(); return $("sinceDlg").showModal(); }
+    if(act==="names"){ $("nameEle").value=meta.names?.felipe||""; $("nameEla").value=meta.names?.mayara||""; return $("namesDlg").showModal(); }
     if(act==="delnote"){ const id=b.closest("[data-note]")?.dataset.note; if(id&&confirm("Apagar esse recadinho?")) await fs.deleteDoc(ref("notes",id)); return; }
     const id=b.closest("[data-id]")?.dataset.id; const it=items.find(i=>i.id===id); if(!it) return;
     const markRef=ref("marks",me,"items",id);
@@ -524,6 +550,12 @@ $("giveForm").onsubmit=async(e)=>{
   finally{$("giveSave").disabled=false;}
 };
 $("sinceCancel").onclick=()=>$("sinceDlg").close();
+$("namesCancel").onclick=()=>$("namesDlg").close();
+$("namesForm").onsubmit=async(e)=>{
+  e.preventDefault();
+  try{ await fs.setDoc(ref("meta","info"),{names:{felipe:$("nameEle").value.trim(),mayara:$("nameEla").value.trim()}},{merge:true}); $("namesDlg").close(); toast("Apelidos salvos 💕"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
 $("sinceForm").onsubmit=async(e)=>{
   e.preventDefault(); const v=$("sinceDate").value; if(!v) return;
   try{ await fs.setDoc(ref("meta","info"),{since:v},{merge:true}); $("sinceDlg").close(); toast("Data salva 💕"); }
