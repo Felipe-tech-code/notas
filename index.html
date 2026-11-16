@@ -189,7 +189,7 @@ dialog h2{font-size:24px;margin-bottom:4px}
   <header class="top">
     <div class="brand">
       <div class="logo">🎁</div>
-      <div><h1>Nós</h1><small id="subtitle">só nossa</small></div>
+      <div><h1>Nós</h1><small id="subtitle">Felipe & Mayara</small></div>
     </div>
     <div id="topActions" class="hidden"><button class="btn ghost small" id="logoutBtn">🚪 Sair</button></div>
   </header>
@@ -204,8 +204,8 @@ dialog h2{font-size:24px;margin-bottom:4px}
     <p>Escolha quem é você e digite sua senha.</p>
     <form id="loginForm" style="max-width:380px;margin:0 auto;text-align:left">
       <div class="who" id="whoButtons" style="margin-top:0">
-        <button type="button" data-k="felipe"><span>🙋‍♂️</span>Ele</button>
-        <button type="button" data-k="mayara"><span>🙋‍♀️</span>Ela</button>
+        <button type="button" data-k="felipe"><span>🙋‍♂️</span>Felipe</button>
+        <button type="button" data-k="mayara"><span>🙋‍♀️</span>Mayara</button>
       </div>
       <label for="pass">Senha</label>
       <input id="pass" type="password" autocomplete="current-password" required placeholder="sua senha">
@@ -322,7 +322,7 @@ dialog h2{font-size:24px;margin-bottom:4px}
 <dialog id="namesDlg">
   <form id="namesForm" method="dialog">
     <h2>Nossos apelidos 💞</h2>
-    <p style="color:var(--muted);margin:4px 0 0">Ficam guardados só pra quem entra com senha. Deixe em branco pra aparecer só "ele" e "ela".</p>
+    <p style="color:var(--muted);margin:4px 0 0">Ficam guardados só pra quem entra com senha. Deixe em branco pra aparecer "Felipe" e "Mayara".</p>
     <div class="row">
       <div><label for="nameEle">Ele</label><input id="nameEle" maxlength="20" placeholder="Ex.: Mozão"></div>
       <div><label for="nameEla">Ela</label><input id="nameEla" maxlength="20" placeholder="Ex.: Princesa"></div>
@@ -349,10 +349,10 @@ const EMAIL_DOMAIN = "nossalista.local";   // os usuários no Firebase são feli
 const art = (k) => k==="mayara" ? "a" : "o";
 // Apelidos ficam salvos no banco (só aparecem depois do login). Sem apelido: "ele" / "ela".
 const custom = (k) => !!(meta.names && String(meta.names[k]||"").trim());
-const who = (k) => custom(k) ? String(meta.names[k]).trim() : (k==="mayara" ? "ela" : "ele");
+const who = (k) => custom(k) ? String(meta.names[k]).trim() : (k==="mayara" ? "Mayara" : "Felipe");
 const Who = (k) => { const n = who(k); return n.charAt(0).toUpperCase() + n.slice(1); };
-const de = (k) => custom(k) ? `d${art(k)} ${who(k)}` : (k==="mayara" ? "dela" : "dele");
-const para = (k) => custom(k) ? `pr${art(k)} ${who(k)}` : `pra ${who(k)}`;
+const de = (k) => `d${art(k)} ${who(k)}`;
+const para = (k) => `pr${art(k)} ${who(k)}`;
 
 /* ---------- utilidades ---------- */
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -405,9 +405,9 @@ $("logoutBtn").onclick=()=>signOut(auth);
 /* ---------- app ---------- */
 function labels(){
   if(!me) return;
-  $("subtitle").textContent= custom(me) ? `Olá, ${who(me)} 💕` : "só nossa 💕";
+  $("subtitle").textContent=`Olá, ${who(me)} 💕`;
   $("tabTheirs").textContent=`🎀 ${Who(other())}`;
-  $("theirsTitle").textContent= custom(other()) ? `O que ${art(other())} ${who(other())} quer ganhar` : `O que ${who(other())} quer ganhar`;
+  $("theirsTitle").textContent=`O que ${art(other())} ${who(other())} quer ganhar`;
 }
 function startApp(){
   labels();
