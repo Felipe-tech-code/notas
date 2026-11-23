@@ -481,6 +481,7 @@ const para = (k) => `pr${art(k)} ${who(k)}`;
 /* ---------- utilidades ---------- */
 function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function safeUrl(u){try{const x=new URL(u);return (x.protocol==="https:"||x.protocol==="http:")?x.href:"";}catch{return "";}}
+function safeImg(s){return /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(String(s||""))?s:"";}
 function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{return "";}}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch{return null;}}
 let toastT; function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2400);}
@@ -558,7 +559,7 @@ function setTab(t){
 const statusOf=(it)=>given[it.id]?"dado":marks[it.id];
 const sortItems=(arr,done)=>arr.sort((x,y)=>(done(x)-done(y))||(y.priority||0)-(x.priority||0)||(y.createdAt||0)-(x.createdAt||0));
 function itemHtml(it,mine){
-  const url=safeUrl(it.link), p=it.priority||1, g=given[it.id], st=mine?null:statusOf(it);
+  const url=safeUrl(it.link), p=Math.min(3,Math.max(1,Math.round(+it.priority)||1)), g=given[it.id], st=mine?null:statusOf(it);
   let badge="", actions="", extra="", cls="";
   if(mine){
     if(g){ cls="got"; badge=`<span class="badge got">💝 Ganhei ${esc(de(g.giver))}${g.date?` · ${esc(fmtDay(g.date))}`:""}</span>`;
@@ -815,16 +816,16 @@ function renderMems(){
   ms.forEach((m,i)=>{
     const y=String(m.date||"").slice(0,4);
     if(y!==year){ year=y; html+=`<h3 class="year">${esc(y)}</h3>`; }
-    html+=`<button class="polaroid" data-mem="${esc(m.id)}" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg"><img src="${esc(m.thumb)}" alt="" loading="lazy"><span class="cap">${esc(m.caption||"")}</span><span class="when">${esc(fmtDay(m.date))}</span></button>`;
+    html+=`<button class="polaroid" data-mem="${esc(m.id)}" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg"><img src="${esc(safeImg(m.thumb))}" alt="" loading="lazy"><span class="cap">${esc(m.caption||"")}</span><span class="when">${esc(fmtDay(m.date))}</span></button>`;
   });
   $("memGrid").innerHTML=html;
 }
 $("memGrid").onclick=async(e)=>{
   const b=e.target.closest("[data-mem]"); if(!b) return;
   const m=mems.find(x=>x.id===b.dataset.mem); if(!m) return; viewMemId=m.id;
-  $("memBig").src=m.thumb; $("memBigCap").textContent=m.caption||""; $("memBigWhen").textContent=`${fmtDay(m.date)} · guardada por ${who(m.by)}`;
+  $("memBig").src=safeImg(m.thumb); $("memBigCap").textContent=m.caption||""; $("memBigWhen").textContent=`${fmtDay(m.date)} · guardada por ${who(m.by)}`;
   $("memDel").classList.toggle("hidden",m.by!==me); $("memView").showModal();
-  try{ const s=await fs.getDoc(ref("memPhotos",m.id)); if(s.exists()&&viewMemId===m.id) $("memBig").src=s.data().data; }catch(err){console.error(err);}
+  try{ const s=await fs.getDoc(ref("memPhotos",m.id)); if(s.exists()&&viewMemId===m.id) $("memBig").src=safeImg(s.data().data); }catch(err){console.error(err);}
 };
 $("memClose").onclick=()=>$("memView").close();
 $("memDel").onclick=async()=>{
@@ -856,7 +857,7 @@ function renderLetters(){
   const sent=letters.filter(l=>l.from===me).sort((a,b)=>String(a.openDate).localeCompare(String(b.openDate)));
   const env=(l,mine)=>{
     const n=daysUntil(l.openDate), open=n<=0;
-    const status = mine ? (open?`${who(l.to)} já pode abrir`:`abre pr${art(l.to)} ${esc(who(l.to))} em ${plural(n,"dia","dias")}`)
+    const status = mine ? (open?`${esc(Who(l.to))} já pode abrir`:`abre pr${art(l.to)} ${esc(who(l.to))} em ${plural(n,"dia","dias")}`)
                         : (open?"Já pode abrir! 💕":`🔒 Faltam ${plural(n,"dia","dias")}`);
     return `<div class="envelope ${open||mine?"open":"locked"}" data-letter="${esc(l.id)}">
       <div class="seal">${open||mine?"💌":"🔒"}</div>
