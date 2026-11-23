@@ -37,9 +37,41 @@ service cloud.firestore {
       allow delete: if isUs() && resource.data.from == me();
     }
 
-    // Data do namoro.
+    // Data do namoro e apelidos.
     match /lists/nossa/meta/{docId} {
       allow read, write: if isUs();
+    }
+
+    // Sonhos a dois: os dois veem, marcam como realizado e apagam.
+    match /lists/nossa/dreams/{dreamId} {
+      allow read, delete: if isUs();
+      allow create: if isUs() && request.resource.data.by == me();
+      allow update: if isUs() && request.resource.data.by == resource.data.by;
+    }
+
+    // Memórias (miniatura) e a foto grande; só quem guardou apaga.
+    match /lists/nossa/memories/{memId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.by == me() && request.resource.data.thumb.size() < 200000;
+      allow delete: if isUs() && resource.data.by == me();
+    }
+    match /lists/nossa/memPhotos/{memId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.by == me() && request.resource.data.data.size() < 1000000;
+      allow delete: if isUs() && resource.data.by == me();
+    }
+
+    // Cartas: o envelope (título e data) os dois veem.
+    match /lists/nossa/letters/{letterId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.from == me() && request.resource.data.to != me();
+      allow delete: if isUs() && resource.data.from == me();
+    }
+    // O texto da carta só abre pra quem escreveu ou depois da data escolhida.
+    match /lists/nossa/letterBodies/{letterId} {
+      allow read: if isUs() && (resource.data.from == me() || request.time >= resource.data.openAt);
+      allow create: if isUs() && request.resource.data.from == me() && request.resource.data.openAt is timestamp;
+      allow delete: if isUs() && resource.data.from == me();
     }
   }
 }

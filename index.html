@@ -180,6 +180,34 @@ dialog h2{font-size:24px;margin-bottom:4px}
 .tl .when{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .tl .what{font-size:16px;margin-top:4px}
 .tl .what b{font-family:Fraunces,serif}
+.subnav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:-4px 0 18px}
+@media (max-width:480px){.subnav{grid-template-columns:repeat(2,1fr)}}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);font:700 14px Nunito,sans-serif;border-radius:999px;padding:8px 14px;cursor:pointer}
+.subnav button.active{background:var(--rose-l);border-color:var(--rose);color:var(--rose-d)}
+.progress{flex-basis:100%;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:99px;transition:width .4s}
+.inline-form{display:flex;gap:8px;flex-wrap:wrap;padding:14px}
+.inline-form input{flex:1 1 220px}
+.inline-form select{flex:0 1 150px;width:auto}
+.year{font-size:22px;grid-column:1/-1;margin:10px 0 -4px;color:var(--rose-d)}
+.memgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.polaroid{background:#fff;color:#3a2530;border:0;padding:10px 10px 12px;border-radius:4px;box-shadow:0 10px 22px -12px rgba(0,0,0,.45);transform:rotate(var(--r,0deg));cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:center;transition:transform .15s}
+.polaroid:hover{transform:rotate(0) scale(1.03)}
+.polaroid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:2px;background:#eee}
+.polaroid .cap{font:600 14px Fraunces,serif;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.polaroid .when{font-size:11px;color:#8b6f78}
+#memView{max-width:720px}
+#memView img{width:100%;max-height:70vh;object-fit:contain;background:#000;display:block;border-radius:22px 22px 0 0}
+.envelope{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.envelope .seal{font-size:30px;width:52px;height:52px;display:grid;place-items:center;border-radius:50%;background:var(--rose-l);flex:none}
+.envelope.locked{background:repeating-linear-gradient(135deg,var(--card) 0 14px,var(--bg) 14px 28px)}
+.envelope .body{flex:1;min-width:0}
+.envelope h3{font-size:18px;word-wrap:break-word}
+.envelope .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px}
+.envelope .status{font-weight:700;color:var(--rose-d);font-size:14px;margin-top:8px}
+.envelope .actions{display:flex;gap:6px;margin-top:10px;align-items:center}
+.paper{background:#fffdf6;color:#3a2a20;padding:30px 26px;border-radius:22px;background-image:repeating-linear-gradient(transparent 0 31px,#efe3d0 31px 32px);font:400 17px/32px Georgia,serif;white-space:pre-wrap;word-wrap:break-word;max-height:60vh;overflow:auto}
 </style>
 </head>
 <body>
@@ -241,6 +269,13 @@ dialog h2{font-size:24px;margin-bottom:4px}
     </div>
 
     <div id="usView" class="hidden">
+      <nav class="subnav">
+        <button data-sub="home" class="active">💕 Início</button>
+        <button data-sub="dreams">🌠 Sonhos</button>
+        <button data-sub="memories">📸 Memórias</button>
+        <button data-sub="letters">💌 Cartas</button>
+      </nav>
+      <div id="sub_home">
       <div class="card together" id="together"></div>
 
       <div class="section-head" style="margin-top:28px">
@@ -257,6 +292,36 @@ dialog h2{font-size:24px;margin-bottom:4px}
       </div>
       <div id="giftStats" class="stats"></div>
       <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div id="sub_dreams" class="hidden">
+        <div class="section-head"><div><h2>🌠 Sonhos a dois</h2><p>Tudo que a gente ainda quer viver juntos.</p></div></div>
+        <form id="dreamForm" class="card inline-form">
+          <input id="dreamText" maxlength="120" required placeholder="Ex.: Ver o pôr do sol em Jericoacoara">
+          <select id="dreamCat"></select>
+          <button class="btn" type="submit">＋ Sonhar</button>
+        </form>
+        <div class="stats" id="dreamStats" style="margin-top:14px"></div>
+        <div class="list" id="dreamList"></div>
+        <div id="dreamDoneWrap" class="hidden">
+          <div class="section-head" style="margin-top:26px"><div><h2>💖 Já realizamos</h2></div></div>
+          <div class="list" id="dreamDoneList"></div>
+        </div>
+      </div>
+
+      <div id="sub_memories" class="hidden">
+        <div class="section-head"><div><h2>📸 Nossas memórias</h2><p>Um álbum só nosso, com as fotos e as datas.</p></div>
+          <button class="btn" id="memAdd">＋ Nova memória</button></div>
+        <div class="memgrid" id="memGrid"></div>
+      </div>
+
+      <div id="sub_letters" class="hidden">
+        <div class="section-head"><div><h2>💌 Cartas pro futuro</h2><p>Escreva hoje, e só dá pra abrir no dia escolhido. Nem dá pra espiar antes 🤫</p></div>
+          <button class="btn" id="letterAdd">✍️ Escrever carta</button></div>
+        <h3 style="margin:6px 0 12px">Pra você</h3>
+        <div id="inbox"></div>
+        <div id="sentWrap" class="hidden"><h3 style="margin:22px 0 12px">Que você escreveu</h3><div id="sentList"></div></div>
+      </div>
     </div>
   </section>
 </main>
@@ -317,6 +382,65 @@ dialog h2{font-size:24px;margin-bottom:4px}
       <button type="submit" class="btn">Salvar 💕</button>
     </div>
   </form>
+</dialog>
+
+<dialog id="dreamDlg">
+  <form id="dreamDoneForm" method="dialog">
+    <h2>Realizamos! 💖</h2>
+    <p style="color:var(--muted);margin:4px 0 0" id="dreamDoneTitle"></p>
+    <label for="dreamDoneDate">Quando?</label>
+    <input id="dreamDoneDate" type="date">
+    <label for="dreamDoneNote">Como foi? (opcional)</label>
+    <textarea id="dreamDoneNote" maxlength="300" placeholder="Ex.: Choveu, mas foi perfeito"></textarea>
+    <div class="dlg-actions"><button type="button" class="btn ghost" id="dreamCancel">Cancelar</button><button type="submit" class="btn green">Salvar 💖</button></div>
+  </form>
+</dialog>
+
+<dialog id="memDlg">
+  <form id="memForm" method="dialog">
+    <h2>Nova memória 📸</h2>
+    <label for="memFile">Foto</label>
+    <input id="memFile" type="file" accept="image/*">
+    <img id="memPreview" class="hidden" alt="" style="width:100%;max-height:260px;object-fit:contain;margin-top:10px;border-radius:12px;background:var(--bg)">
+    <label for="memCaption">Legenda</label>
+    <input id="memCaption" maxlength="120" placeholder="Ex.: Nosso primeiro encontro">
+    <label for="memDate">Data</label>
+    <input id="memDate" type="date">
+    <div class="dlg-actions"><button type="button" class="btn ghost" id="memCancel">Cancelar</button><button type="submit" class="btn" id="memSave">Guardar 📸</button></div>
+  </form>
+</dialog>
+
+<dialog id="memView">
+  <img id="memBig" alt="">
+  <div style="padding:16px 20px 20px">
+    <h2 id="memBigCap" style="font-size:22px"></h2>
+    <p id="memBigWhen" style="color:var(--muted);margin:6px 0 0;font-size:14px"></p>
+    <div class="dlg-actions"><button type="button" class="btn ghost small hidden" id="memDel">🗑️ Apagar</button><button type="button" class="btn small" id="memClose">Fechar</button></div>
+  </div>
+</dialog>
+
+<dialog id="letterDlg">
+  <form id="letterForm" method="dialog">
+    <h2>Carta pr<span id="letterToArt"></span> <span id="letterTo"></span> 💌</h2>
+    <label for="letterTitle">Título do envelope</label>
+    <input id="letterTitle" maxlength="80" required placeholder="Ex.: Abra no nosso aniversário">
+    <label for="letterDate">Só pode abrir a partir de</label>
+    <input id="letterDate" type="date" required>
+    <label for="letterBody">Sua carta</label>
+    <textarea id="letterBody" maxlength="5000" required style="min-height:200px" placeholder="Meu amor…"></textarea>
+    <p style="color:var(--muted);font-size:13px;margin:8px 0 0">Depois de lacrada, a carta não pode ser editada (mas pode ser apagada).</p>
+    <div class="dlg-actions"><button type="button" class="btn ghost" id="letterCancel">Cancelar</button><button type="submit" class="btn" id="letterSave">Lacrar 💌</button></div>
+  </form>
+</dialog>
+
+<dialog id="letterView">
+  <div style="padding:20px">
+    <h2 id="lvTitle" style="font-size:24px;margin-bottom:2px"></h2>
+    <p id="lvDate" style="color:var(--muted);margin:0 0 14px;font-size:13px"></p>
+    <div class="paper" id="lvBody"></div>
+    <p id="lvFrom" style="text-align:right;font:italic 600 18px Fraunces,serif;margin:14px 6px 0"></p>
+    <div class="dlg-actions"><button type="button" class="btn" id="letterClose">Fechar 💕</button></div>
+  </div>
 </dialog>
 
 <dialog id="namesDlg">
@@ -419,6 +543,7 @@ function startApp(){
   watch(col("given"),s=>{given={};s.docs.forEach(d=>given[d.id]={id:d.id,...d.data()});render();});
   watch(col("notes"),s=>{notes=s.docs.map(d=>({id:d.id,...d.data()}));renderUs();});
   watch(ref("meta","info"),s=>{meta=s.exists()?s.data():{};labels();render();});
+  startExtras(watch);
   setTab(ls("wl-tab")||"mine"); show("app");
 }
 function setTab(t){
@@ -601,6 +726,177 @@ $("itemForm").onsubmit=async(e)=>{
     $("itemDlg").close();
   }catch(err){console.error(err);toast("Não consegui salvar 😕");}
   finally{$("dlgSave").disabled=false;}
+};
+/* =========================================================
+   Aba Nós: Sonhos a dois · Memórias · Cartas com data
+   ========================================================= */
+let dreams=[], mems=[], letters=[], doneDreamId=null, viewMemId=null;
+const SUBS=["home","dreams","memories","letters"];
+function setSub(s){
+  if(!SUBS.includes(s)) s="home"; ls("wl-sub",s);
+  SUBS.forEach(k=>{ $("sub_"+k).classList.toggle("hidden",k!==s); document.querySelector(`.subnav [data-sub="${k}"]`).classList.toggle("active",k===s); });
+}
+document.querySelector(".subnav").onclick=(e)=>{const b=e.target.closest("[data-sub]"); if(b) setSub(b.dataset.sub);};
+const daysUntil=(s)=>{const p=parseDay(s);return p?dayNum(p)-dayNum(parseDay(todayStr())):0;};
+const plural=(n,a,b)=>`${n} ${n===1?a:b}`;
+
+function startExtras(watch){
+  watch(col("dreams"),s=>{dreams=s.docs.map(d=>({id:d.id,...d.data()}));renderDreams();});
+  watch(col("memories"),s=>{mems=s.docs.map(d=>({id:d.id,...d.data()}));renderMems();});
+  watch(col("letters"),s=>{letters=s.docs.map(d=>({id:d.id,...d.data()}));renderLetters();});
+  setSub(ls("wl-sub")||"home");
+}
+
+/* ---------- Sonhos a dois ---------- */
+const CATS={viagem:"✈️ Viagem",comer:"🍽️ Comer",assistir:"🎬 Assistir",viver:"🎉 Viver",futuro:"🏠 Futuro",outro:"✨ Outro"};
+const catEmoji=(c)=>(CATS[c]||CATS.outro).split(" ")[0];
+$("dreamCat").innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+$("dreamForm").onsubmit=async(e)=>{
+  e.preventDefault(); const title=$("dreamText").value.trim(); if(!title) return;
+  try{ await fs.addDoc(col("dreams"),{title,cat:$("dreamCat").value,by:me,done:false,at:Date.now()}); $("dreamText").value=""; toast("Sonho anotado ✨"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
+function renderDreams(){
+  if(!me) return;
+  const todo=dreams.filter(d=>!d.done).sort((a,b)=>(b.at||0)-(a.at||0));
+  const done=dreams.filter(d=>d.done).sort((a,b)=>String(b.doneDate||"").localeCompare(String(a.doneDate||"")));
+  $("dreamStats").innerHTML = dreams.length ? `<span class="pill">✨ <b>${todo.length}</b> pra realizar</span><span class="pill">💖 <b>${done.length}</b> realizado${done.length===1?"":"s"}</span>`
+    + `<div class="progress" title="${done.length} de ${dreams.length}"><span style="width:${Math.round(100*done.length/dreams.length)}%"></span></div>` : "";
+  const card=(d)=>`<article class="item ${d.done?"got":""}" data-dream="${esc(d.id)}">
+      <div class="emoji">${catEmoji(d.cat)}</div>
+      <div class="body"><h3>${esc(d.title)}</h3>
+        <div class="meta"><span>${esc((CATS[d.cat]||CATS.outro).split(" ").slice(1).join(" "))}</span><span>ideia ${esc(de(d.by))}</span>
+          ${d.done?`<span class="badge done">💖 Realizado${d.doneDate?` · ${esc(fmtDay(d.doneDate))}`:""}</span>`:""}</div>
+        ${d.doneNote?`<p class="dedic">“${esc(d.doneNote)}”</p>`:""}
+        <div class="actions">${d.done
+          ? `<button class="btn ghost small" data-x="dreamUndo">Desfazer</button>`
+          : `<button class="btn green small" data-x="dreamDone">💖 Realizamos!</button>`}<button class="icon-btn" data-x="dreamDel" title="Apagar">🗑️</button></div>
+      </div></article>`;
+  $("dreamList").innerHTML = todo.length ? todo.map(card).join("")
+    : `<div class="empty"><div class="big">🌠</div><p>${dreams.length?"Vocês realizaram todos os sonhos da lista! Hora de sonhar mais.":"Que tal anotar o primeiro sonho de vocês?<br>Uma viagem, um restaurante, um filme…"}</p></div>`;
+  $("dreamDoneWrap").classList.toggle("hidden",!done.length);
+  $("dreamDoneList").innerHTML=done.map(card).join("");
+}
+
+/* ---------- Memórias (fotos) ---------- */
+function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();i.onload=()=>{URL.revokeObjectURL(u);res(i);};i.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("img"));};i.src=u;});}
+function shrink(img,max,limit){
+  let w=img.naturalWidth,h=img.naturalHeight; const s=Math.min(1,max/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
+  const c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
+  for(let q=0.82;q>=0.3;q-=0.08){const d=c.toDataURL("image/jpeg",q); if(d.length<limit) return d;}
+  return null;
+}
+let memImg=null;
+$("memAdd").onclick=()=>{ memImg=null; $("memFile").value=""; $("memPreview").classList.add("hidden"); $("memCaption").value=""; $("memDate").value=todayStr(); $("memDate").max=todayStr(); $("memDlg").showModal(); };
+$("memCancel").onclick=()=>$("memDlg").close();
+$("memFile").onchange=async()=>{
+  const f=$("memFile").files[0]; if(!f) return;
+  try{ memImg=await loadImg(f); $("memPreview").src=shrink(memImg,600,400000)||""; $("memPreview").classList.remove("hidden"); }
+  catch{ memImg=null; toast("Não consegui abrir essa foto 😕"); }
+};
+$("memForm").onsubmit=async(e)=>{
+  e.preventDefault(); if(!memImg){toast("Escolha uma foto 📷");return;}
+  const full=shrink(memImg,1600,900000), thumb=shrink(memImg,480,150000);
+  if(!full||!thumb){toast("Essa foto é grande demais 😕");return;}
+  $("memSave").disabled=true;
+  try{
+    const id=fs.doc(col("memories")).id;
+    await fs.setDoc(ref("memPhotos",id),{data:full,by:me});
+    await fs.setDoc(ref("memories",id),{thumb,caption:$("memCaption").value.trim(),date:$("memDate").value||todayStr(),by:me,at:Date.now()});
+    $("memDlg").close(); toast("Memória guardada 📸");
+  }catch(err){console.error(err);toast("Não consegui salvar 😕");}
+  finally{$("memSave").disabled=false;}
+};
+function renderMems(){
+  if(!me) return;
+  const ms=[...mems].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||(b.at||0)-(a.at||0));
+  if(!ms.length){ $("memGrid").innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="big">📸</div><p>Nenhuma memória ainda.<br>Coloque a primeira foto de vocês!</p></div>`; return; }
+  let html="", year=null;
+  ms.forEach((m,i)=>{
+    const y=String(m.date||"").slice(0,4);
+    if(y!==year){ year=y; html+=`<h3 class="year">${esc(y)}</h3>`; }
+    html+=`<button class="polaroid" data-mem="${esc(m.id)}" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg"><img src="${esc(m.thumb)}" alt="" loading="lazy"><span class="cap">${esc(m.caption||"")}</span><span class="when">${esc(fmtDay(m.date))}</span></button>`;
+  });
+  $("memGrid").innerHTML=html;
+}
+$("memGrid").onclick=async(e)=>{
+  const b=e.target.closest("[data-mem]"); if(!b) return;
+  const m=mems.find(x=>x.id===b.dataset.mem); if(!m) return; viewMemId=m.id;
+  $("memBig").src=m.thumb; $("memBigCap").textContent=m.caption||""; $("memBigWhen").textContent=`${fmtDay(m.date)} · guardada por ${who(m.by)}`;
+  $("memDel").classList.toggle("hidden",m.by!==me); $("memView").showModal();
+  try{ const s=await fs.getDoc(ref("memPhotos",m.id)); if(s.exists()&&viewMemId===m.id) $("memBig").src=s.data().data; }catch(err){console.error(err);}
+};
+$("memClose").onclick=()=>$("memView").close();
+$("memDel").onclick=async()=>{
+  if(!viewMemId||!confirm("Apagar essa memória?")) return;
+  try{ await fs.deleteDoc(ref("memories",viewMemId)); await fs.deleteDoc(ref("memPhotos",viewMemId)); $("memView").close(); toast("Memória apagada"); }
+  catch(err){console.error(err);toast("Não deu certo 😕");}
+};
+
+/* ---------- Cartas com data pra abrir ---------- */
+$("letterAdd").onclick=()=>{ $("letterTitle").value=""; $("letterBody").value=""; $("letterDate").value=""; $("letterDate").min=todayStr(); $("letterTo").textContent=who(other()); $("letterToArt").textContent=art(other());$("letterDlg").showModal(); };
+$("letterCancel").onclick=()=>$("letterDlg").close();
+$("letterForm").onsubmit=async(e)=>{
+  e.preventDefault();
+  const title=$("letterTitle").value.trim(), body=$("letterBody").value.trim(), d=parseDay($("letterDate").value);
+  if(!title||!body||!d) return;
+  const openAt=fs.Timestamp.fromDate(new Date(d.y,d.m-1,d.d));
+  $("letterSave").disabled=true;
+  try{
+    const id=fs.doc(col("letters")).id;
+    await fs.setDoc(ref("letterBodies",id),{from:me,body,openAt});
+    await fs.setDoc(ref("letters",id),{from:me,to:other(),title,openDate:$("letterDate").value,openAt,at:Date.now()});
+    $("letterDlg").close(); toast("Carta lacrada 💌");
+  }catch(err){console.error(err);toast("Não consegui salvar 😕");}
+  finally{$("letterSave").disabled=false;}
+};
+function renderLetters(){
+  if(!me) return;
+  const inbox=letters.filter(l=>l.to===me).sort((a,b)=>String(a.openDate).localeCompare(String(b.openDate)));
+  const sent=letters.filter(l=>l.from===me).sort((a,b)=>String(a.openDate).localeCompare(String(b.openDate)));
+  const env=(l,mine)=>{
+    const n=daysUntil(l.openDate), open=n<=0;
+    const status = mine ? (open?`${who(l.to)} já pode abrir`:`abre pr${art(l.to)} ${esc(who(l.to))} em ${plural(n,"dia","dias")}`)
+                        : (open?"Já pode abrir! 💕":`🔒 Faltam ${plural(n,"dia","dias")}`);
+    return `<div class="envelope ${open||mine?"open":"locked"}" data-letter="${esc(l.id)}">
+      <div class="seal">${open||mine?"💌":"🔒"}</div>
+      <div class="body"><h3>${esc(l.title)}</h3>
+        <div class="meta"><span>${mine?"para":"de"} ${esc(who(mine?l.to:l.from))}</span><span>📅 ${esc(fmtDay(l.openDate))}</span></div>
+        <div class="status">${status}</div>
+        <div class="actions">${open||mine?`<button class="btn small" data-x="letterRead">${mine?"Reler":"💌 Abrir carta"}</button>`:""}${mine?`<button class="icon-btn" data-x="letterDel" title="Apagar">🗑️</button>`:""}</div>
+      </div></div>`;
+  };
+  $("inbox").innerHTML = inbox.length ? inbox.map(l=>env(l,false)).join("") : `<div class="empty"><div class="big">📭</div><p>Nenhuma carta pra você… ainda 😉</p></div>`;
+  $("sentWrap").classList.toggle("hidden",!sent.length);
+  $("sentList").innerHTML = sent.map(l=>env(l,true)).join("");
+}
+$("letterClose").onclick=()=>$("letterView").close();
+
+/* ---------- cliques das novas seções ---------- */
+document.addEventListener("click",async(e)=>{
+  const b=e.target.closest("[data-x]"); if(!b||!me) return;
+  const x=b.dataset.x;
+  try{
+    const dId=b.closest("[data-dream]")?.dataset.dream, lId=b.closest("[data-letter]")?.dataset.letter;
+    if(x==="dreamDone"){ doneDreamId=dId; const d=dreams.find(v=>v.id===dId); $("dreamDoneTitle").textContent=d?.title||""; $("dreamDoneDate").value=todayStr(); $("dreamDoneDate").max=todayStr(); $("dreamDoneNote").value=""; $("dreamDlg").showModal(); }
+    if(x==="dreamUndo"){ await fs.updateDoc(ref("dreams",dId),{done:false,doneDate:"",doneNote:""}); }
+    if(x==="dreamDel"){ const d=dreams.find(v=>v.id===dId); if(confirm(`Apagar o sonho "${d?.title}"?`)) await fs.deleteDoc(ref("dreams",dId)); }
+    if(x==="letterRead"){
+      const l=letters.find(v=>v.id===lId); if(!l) return;
+      const s=await fs.getDoc(ref("letterBodies",lId));
+      if(!s.exists()){ toast("Carta não encontrada 😕"); return; }
+      $("lvTitle").textContent=l.title; $("lvBody").textContent=s.data().body;
+      $("lvFrom").textContent=`Com amor, ${who(l.from)} 💕`; $("lvDate").textContent=fmtDay(l.openDate);
+      $("letterView").showModal();
+    }
+    if(x==="letterDel"){ if(confirm("Apagar essa carta?")){ await fs.deleteDoc(ref("letters",lId)); await fs.deleteDoc(ref("letterBodies",lId)); toast("Carta apagada"); } }
+  }catch(err){ console.error(err); toast(x==="letterRead"?"Ainda não chegou a hora de abrir 😉":"Não deu certo, tenta de novo 😕"); }
+});
+$("dreamCancel").onclick=()=>$("dreamDlg").close();
+$("dreamDoneForm").onsubmit=async(e)=>{
+  e.preventDefault(); if(!doneDreamId) return;
+  try{ await fs.updateDoc(ref("dreams",doneDreamId),{done:true,doneDate:$("dreamDoneDate").value||todayStr(),doneNote:$("dreamDoneNote").value.trim()}); $("dreamDlg").close(); toast("Sonho realizado! 💖"); }
+  catch(err){console.error(err);toast("Não deu certo 😕");}
 };
 </script>
 </body>
