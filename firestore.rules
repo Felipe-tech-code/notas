@@ -73,5 +73,21 @@ service cloud.firestore {
       allow create: if isUs() && request.resource.data.from == me() && request.resource.data.openAt is timestamp;
       allow delete: if isUs() && resource.data.from == me();
     }
+
+    // Vales-amor: quem dá cria e apaga; só quem recebeu marca como usado.
+    match /lists/nossa/coupons/{couponId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.from == me() && request.resource.data.to != me();
+      allow update: if isUs() && resource.data.to == me()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'usedAt']);
+      allow delete: if isUs() && resource.data.from == me();
+    }
+
+    // Playlist: os dois veem; cada um apaga as músicas que colocou.
+    match /lists/nossa/songs/{songId} {
+      allow read: if isUs();
+      allow create: if isUs() && request.resource.data.by == me();
+      allow delete: if isUs() && resource.data.by == me();
+    }
   }
 }

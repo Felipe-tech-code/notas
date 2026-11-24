@@ -180,10 +180,11 @@ dialog h2{font-size:24px;margin-bottom:4px}
 .tl .when{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .tl .what{font-size:16px;margin-top:4px}
 .tl .what b{font-family:Fraunces,serif}
-.subnav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:-4px 0 18px}
-@media (max-width:480px){.subnav{grid-template-columns:repeat(2,1fr)}}
+.subnav{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:-4px 0 18px}
+@media (max-width:620px){.subnav{grid-template-columns:repeat(4,1fr)}}
 .subnav::-webkit-scrollbar{display:none}
-.subnav button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);font:700 14px Nunito,sans-serif;border-radius:999px;padding:8px 14px;cursor:pointer}
+.subnav button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);font:700 12.5px Nunito,sans-serif;border-radius:14px;padding:7px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.1}
+.subnav button i{font-style:normal;font-size:19px}
 .subnav button.active{background:var(--rose-l);border-color:var(--rose);color:var(--rose-d)}
 .progress{flex-basis:100%;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .progress span{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:99px;transition:width .4s}
@@ -208,6 +209,36 @@ dialog h2{font-size:24px;margin-bottom:4px}
 .envelope .status{font-weight:700;color:var(--rose-d);font-size:14px;margin-top:8px}
 .envelope .actions{display:flex;gap:6px;margin-top:10px;align-items:center}
 .paper{background:#fffdf6;color:#3a2a20;padding:30px 26px;border-radius:22px;background-image:repeating-linear-gradient(transparent 0 31px,#efe3d0 31px 32px);font:400 17px/32px Georgia,serif;white-space:pre-wrap;word-wrap:break-word;max-height:60vh;overflow:auto}
+.sub-note{color:var(--muted);margin:0 0 12px}
+.chip{cursor:pointer;font:600 13px Nunito,sans-serif}
+.chip:hover{border-color:var(--rose);color:var(--rose-d)}
+.ticket{position:relative;display:flex;gap:14px;align-items:flex-start;background:linear-gradient(135deg,var(--rose-l),var(--card));border:2px dashed var(--rose);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--bg);transform:translateY(-50%)}
+.ticket::before{left:-12px}.ticket::after{right:-12px}
+.ticket.used{opacity:.55;border-style:solid;border-color:var(--line);background:var(--card)}
+.ticket.used .tk-title{text-decoration:line-through}
+.tk-emoji{font-size:34px;line-height:1;flex:none}
+.tk-body{flex:1;min-width:0}
+.tk-title{font:700 19px Fraunces,serif;word-wrap:break-word}
+.tk-note{font-size:14px;color:var(--muted);margin-top:4px;white-space:pre-wrap;word-wrap:break-word}
+.tk-meta{font-size:12px;color:var(--muted);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.ticket .actions{display:flex;gap:6px;margin-top:10px}
+.song{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.song .disc{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:22px;background:radial-gradient(circle,var(--rose-l) 0 18%,#2a1d23 19% 100%)}
+.song .body{flex:1;min-width:0}
+.song h3{font-size:18px;word-wrap:break-word}
+.song .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px}
+.song .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.song .embed iframe{width:100%;border:0;border-radius:12px;margin-top:10px}
+.rl{text-align:center;padding:30px 20px}
+.rl-filter{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.rl-filter button{border:1.5px solid var(--line);background:var(--bg);color:var(--muted);font:700 13px Nunito,sans-serif;border-radius:999px;padding:7px 13px;cursor:pointer}
+.rl-filter button.active{background:var(--rose-l);border-color:var(--rose);color:var(--rose-d)}
+#rlResult{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:20px;background:var(--bg);border:2px dashed var(--line);padding:20px;transition:border-color .2s,transform .2s}
+#rlResult.landed{border-color:var(--rose);border-style:solid;transform:scale(1.03)}
+#rlEmoji{font-size:48px;line-height:1}
+#rlText{font:700 20px Fraunces,serif}
+#rlActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;min-height:34px;align-items:center}
 </style>
 </head>
 <body>
@@ -270,10 +301,13 @@ dialog h2{font-size:24px;margin-bottom:4px}
 
     <div id="usView" class="hidden">
       <nav class="subnav">
-        <button data-sub="home" class="active">💕 Início</button>
-        <button data-sub="dreams">🌠 Sonhos</button>
-        <button data-sub="memories">📸 Memórias</button>
-        <button data-sub="letters">💌 Cartas</button>
+        <button data-sub="home" class="active"><i>💕</i>Início</button>
+        <button data-sub="dreams"><i>🌠</i>Sonhos</button>
+        <button data-sub="memories"><i>📸</i>Fotos</button>
+        <button data-sub="letters"><i>💌</i>Cartas</button>
+        <button data-sub="coupons"><i>🎟️</i>Vales</button>
+        <button data-sub="songs"><i>🎵</i>Músicas</button>
+        <button data-sub="roulette"><i>🎲</i>Date</button>
       </nav>
       <div id="sub_home">
       <div class="card together" id="together"></div>
@@ -321,6 +355,42 @@ dialog h2{font-size:24px;margin-bottom:4px}
         <h3 style="margin:6px 0 12px">Pra você</h3>
         <div id="inbox"></div>
         <div id="sentWrap" class="hidden"><h3 style="margin:22px 0 12px">Que você escreveu</h3><div id="sentList"></div></div>
+      </div>
+
+      <div id="sub_coupons" class="hidden">
+        <div class="section-head"><div><h2>🎟️ Vales-amor</h2><p>Cupons pra usar quando quiser. É só tocar em "usar" e cobrar 😉</p></div>
+          <button class="btn" id="cpAdd">＋ Dar um vale</button></div>
+        <h3 style="margin:6px 0 12px">Pra você usar</h3>
+        <div id="cpMine"></div>
+        <div id="cpGaveWrap" class="hidden"><h3 style="margin:22px 0 12px">Que você deu</h3><div id="cpGave"></div></div>
+      </div>
+
+      <div id="sub_songs" class="hidden">
+        <div class="section-head"><div><h2>🎵 Nossa playlist</h2><p>As músicas que contam a nossa história.</p></div></div>
+        <form id="songForm" class="card" style="padding:16px;margin-bottom:16px">
+          <div class="row">
+            <div><label for="songTitle" style="margin-top:0">Música</label><input id="songTitle" maxlength="100" required placeholder="Nome da música"></div>
+            <div><label for="songArtist" style="margin-top:0">Artista</label><input id="songArtist" maxlength="80" placeholder="Quem canta"></div>
+          </div>
+          <label for="songLink">Link (Spotify, YouTube…)</label>
+          <input id="songLink" type="url" maxlength="400" placeholder="https://open.spotify.com/track/…">
+          <label for="songWhy">Por que ela é nossa?</label>
+          <input id="songWhy" maxlength="200" placeholder="Ex.: Tocou no nosso primeiro date">
+          <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">＋ Adicionar 🎵</button></div>
+        </form>
+        <div id="songList"></div>
+      </div>
+
+      <div id="sub_roulette" class="hidden">
+        <div class="section-head"><div><h2>🎲 Roleta de date</h2><p>Sem ideia do que fazer? Deixa a sorte escolher.</p></div></div>
+        <div class="card rl">
+          <div class="rl-filter" id="rlFilter">
+            <button data-f="tudo" class="active">✨ Tudo</button><button data-f="casa">🏠 Em casa</button><button data-f="sair">🚗 Sair</button><button data-f="sonhos">🌠 Só nossos sonhos</button>
+          </div>
+          <div id="rlResult"><div id="rlEmoji">🎲</div><div id="rlText">Toque em sortear</div></div>
+          <div id="rlActions"></div>
+          <button class="btn" id="rlSpin" style="margin-top:12px;font-size:17px;padding:13px 28px">🎲 Sortear nosso date</button>
+        </div>
       </div>
     </div>
   </section>
@@ -443,6 +513,21 @@ dialog h2{font-size:24px;margin-bottom:4px}
   </div>
 </dialog>
 
+<dialog id="cpDlg">
+  <form id="cpForm" method="dialog">
+    <h2>Dar um vale <span id="cpTo"></span> 🎟️</h2>
+    <label>Ideias rápidas</label>
+    <div id="cpIdeas" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <label for="cpTitle">O vale</label>
+    <input id="cpTitle" maxlength="80" required placeholder="Ex.: Vale uma massagem">
+    <label>Ícone</label>
+    <div class="emoji-pick" id="cpEmojiPick"></div>
+    <label for="cpNote">Detalhes (opcional)</label>
+    <input id="cpNote" maxlength="160" placeholder="Ex.: Válido aos domingos 😄">
+    <div class="dlg-actions"><button type="button" class="btn ghost" id="cpCancel">Cancelar</button><button type="submit" class="btn">Entregar 🎟️</button></div>
+  </form>
+</dialog>
+
 <dialog id="namesDlg">
   <form id="namesForm" method="dialog">
     <h2>Nossos apelidos 💞</h2>
@@ -545,6 +630,7 @@ function startApp(){
   watch(col("notes"),s=>{notes=s.docs.map(d=>({id:d.id,...d.data()}));renderUs();});
   watch(ref("meta","info"),s=>{meta=s.exists()?s.data():{};labels();render();});
   startExtras(watch);
+  startExtras2(watch);
   setTab(ls("wl-tab")||"mine"); show("app");
 }
 function setTab(t){
@@ -732,7 +818,7 @@ $("itemForm").onsubmit=async(e)=>{
    Aba Nós: Sonhos a dois · Memórias · Cartas com data
    ========================================================= */
 let dreams=[], mems=[], letters=[], doneDreamId=null, viewMemId=null;
-const SUBS=["home","dreams","memories","letters"];
+const SUBS=["home","dreams","memories","letters","coupons","songs","roulette"];
 function setSub(s){
   if(!SUBS.includes(s)) s="home"; ls("wl-sub",s);
   SUBS.forEach(k=>{ $("sub_"+k).classList.toggle("hidden",k!==s); document.querySelector(`.subnav [data-sub="${k}"]`).classList.toggle("active",k===s); });
@@ -899,6 +985,121 @@ $("dreamDoneForm").onsubmit=async(e)=>{
   try{ await fs.updateDoc(ref("dreams",doneDreamId),{done:true,doneDate:$("dreamDoneDate").value||todayStr(),doneNote:$("dreamDoneNote").value.trim()}); $("dreamDlg").close(); toast("Sonho realizado! 💖"); }
   catch(err){console.error(err);toast("Não deu certo 😕");}
 };
+/* =========================================================
+   Vales-amor · Nossa playlist · Roleta de date
+   ========================================================= */
+let coupons=[], songs=[], cpEmoji="💆";
+function startExtras2(watch){
+  watch(col("coupons"),s=>{coupons=s.docs.map(d=>({id:d.id,...d.data()}));renderCoupons();});
+  watch(col("songs"),s=>{songs=s.docs.map(d=>({id:d.id,...d.data()}));renderSongs();});
+}
+
+/* ---------- Vales-amor ---------- */
+const CP_EMOJIS=["💆","🎬","🍕","🍳","🛁","💋","🌹","☕","🧹","🚗","🎮","🤗"];
+const CP_IDEAS=[["💆","Vale uma massagem"],["🎬","Vale escolher o filme"],["🍳","Vale café da manhã na cama"],["🌹","Vale um date surpresa"],["🧹","Vale um dia sem lavar louça"],["😅","Vale ganhar uma discussão"],["🤗","Vale um abraço de 1 minuto"],["🍕","Vale escolher onde jantar"]];
+$("cpEmojiPick").innerHTML=CP_EMOJIS.map(x=>`<button type="button" data-e="${x}">${x}</button>`).join("");
+$("cpIdeas").innerHTML=CP_IDEAS.map(([e,t],i)=>`<button type="button" class="pill chip" data-i="${i}">${e} ${esc(t)}</button>`).join("");
+const markCp=()=>$("cpEmojiPick").querySelectorAll("button").forEach(b=>b.classList.toggle("sel",b.dataset.e===cpEmoji));
+$("cpEmojiPick").onclick=(e)=>{const b=e.target.closest("[data-e]");if(!b)return;cpEmoji=b.dataset.e;markCp();};
+$("cpIdeas").onclick=(e)=>{const b=e.target.closest("[data-i]");if(!b)return;const [em,t]=CP_IDEAS[+b.dataset.i];$("cpTitle").value=t;cpEmoji=em;if(!CP_EMOJIS.includes(em)){cpEmoji="🤗";}markCp();};
+$("cpAdd").onclick=()=>{ cpEmoji="💆"; markCp(); $("cpTitle").value=""; $("cpNote").value=""; $("cpTo").textContent=`pr${art(other())} ${who(other())}`; $("cpDlg").showModal(); };
+$("cpCancel").onclick=()=>$("cpDlg").close();
+$("cpForm").onsubmit=async(e)=>{
+  e.preventDefault(); const title=$("cpTitle").value.trim(); if(!title) return;
+  try{ await fs.addDoc(col("coupons"),{from:me,to:other(),title,emoji:cpEmoji,note:$("cpNote").value.trim(),used:false,usedAt:0,at:Date.now()}); $("cpDlg").close(); toast("Vale entregue 🎟️"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
+function renderCoupons(){
+  if(!me) return;
+  const sortC=(a,b)=>(a.used-b.used)||(b.at||0)-(a.at||0);
+  const mine=coupons.filter(c=>c.to===me).sort(sortC), gave=coupons.filter(c=>c.from===me).sort(sortC);
+  const tk=(c,recv)=>`<div class="ticket ${c.used?"used":""}" data-cp="${esc(c.id)}">
+      <div class="tk-emoji">${esc(c.emoji||"🎟️")}</div>
+      <div class="tk-body"><div class="tk-title">${esc(c.title)}</div>
+        ${c.note?`<div class="tk-note">${esc(c.note)}</div>`:""}
+        <div class="tk-meta">${recv?`de ${esc(Who(c.from))}`:`para ${esc(Who(c.to))}`}${c.used?` · ✓ usado em ${esc(new Date(c.usedAt).toLocaleDateString("pt-BR",{day:"numeric",month:"short"}))}`:""}</div>
+        <div class="actions">${recv&&!c.used?`<button class="btn small" data-x="cpUse">🎟️ Usar agora</button>`:""}${!recv?`<button class="icon-btn" data-x="cpDel" title="Apagar">🗑️</button>`:""}</div>
+      </div></div>`;
+  const avail=mine.filter(c=>!c.used).length;
+  $("cpMine").innerHTML = mine.length ? (avail?`<p class="sub-note">Você tem <b>${avail}</b> vale${avail>1?"s":""} pra usar 💕</p>`:"")+mine.map(c=>tk(c,true)).join("")
+    : `<div class="empty"><div class="big">🎟️</div><p>Nenhum vale pra você ainda… dá uma indireta 😉</p></div>`;
+  $("cpGaveWrap").classList.toggle("hidden",!gave.length);
+  $("cpGave").innerHTML=gave.map(c=>tk(c,false)).join("");
+}
+
+/* ---------- Nossa playlist ---------- */
+function spotifyEmbed(u){try{const x=new URL(u);if(x.hostname!=="open.spotify.com")return "";const m=x.pathname.match(/^\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/);return m?`https://open.spotify.com/embed/${m[1]}/${m[2]}`:"";}catch{return "";}}
+$("songForm").onsubmit=async(e)=>{
+  e.preventDefault(); const title=$("songTitle").value.trim(); if(!title) return;
+  const link=$("songLink").value.trim();
+  if(link&&!safeUrl(link)){toast("Esse link não parece válido 😕");return;}
+  try{ await fs.addDoc(col("songs"),{title,artist:$("songArtist").value.trim(),link,why:$("songWhy").value.trim(),by:me,at:Date.now()});
+       ["songTitle","songArtist","songLink","songWhy"].forEach(i=>$(i).value=""); toast("Música adicionada 🎵"); }
+  catch(err){console.error(err);toast("Não consegui salvar 😕");}
+};
+function renderSongs(){
+  if(!me) return;
+  const ss=[...songs].sort((a,b)=>(b.at||0)-(a.at||0));
+  $("songList").innerHTML = ss.length ? ss.map((s,i)=>{
+      const url=safeUrl(s.link), emb=url?spotifyEmbed(url):"";
+      return `<article class="song" data-song="${esc(s.id)}">
+        <div class="disc">🎵</div>
+        <div class="body"><h3>${esc(s.title)}</h3>
+          <div class="meta">${s.artist?`<span>${esc(s.artist)}</span>`:""}<span>escolhida por ${esc(Who(s.by))}</span></div>
+          ${s.why?`<p class="dedic">“${esc(s.why)}”</p>`:""}
+          <div class="actions">${emb?`<button class="btn small" data-x="songPlay">▶ Tocar aqui</button>`:""}${url?`<a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener noreferrer">🔗 Abrir</a>`:""}${s.by===me?`<button class="icon-btn" data-x="songDel" title="Apagar">🗑️</button>`:""}</div>
+          <div class="embed"></div>
+        </div></article>`;}).join("")
+    : `<div class="empty"><div class="big">🎶</div><p>Qual é a música de vocês?<br>Coloque a primeira!</p></div>`;
+}
+
+/* ---------- Roleta de date ---------- */
+const DATE_IDEAS=[
+  ["casa","🍝","Cozinhar uma receita nova juntos"],["casa","🎬","Maratona de filmes com pipoca e cobertor"],["casa","🧩","Montar um quebra-cabeça"],["casa","🎨","Noite de pintura: um pinta o outro"],
+  ["casa","🕯️","Jantar à luz de velas em casa"],["casa","🎲","Noite de jogos de tabuleiro"],["casa","💆","Noite de spa: máscara e massagem"],["casa","📸","Ver fotos antigas de vocês"],
+  ["casa","🍫","Fondue de chocolate"],["casa","🎤","Karaokê na sala"],["casa","⛺","Acampamento na sala com lençóis"],["casa","✍️","Escrever uma carta um pro outro e trocar"],
+  ["sair","🌅","Ver o pôr do sol num lugar bonito"],["sair","🧺","Piquenique no parque"],["sair","🍦","Sair pra tomar sorvete e caminhar"],["sair","🎳","Boliche"],
+  ["sair","🍣","Experimentar um restaurante que nunca foram"],["sair","🎡","Ir a uma feira ou parque de diversões"],["sair","🖼️","Visitar um museu ou exposição"],["sair","☕","Café da tarde numa cafeteria nova"],
+  ["sair","🚲","Passeio de bicicleta"],["sair","🌌","Ver as estrelas longe da cidade"],["sair","🎭","Ir ao cinema ou teatro"],["sair","🛍️","Feirinha: cada um escolhe um presentinho de até R$ 20 pro outro"],
+];
+let rlFilter="tudo", rlSpinning=false, rlLast=null;
+$("rlFilter").onclick=(e)=>{const b=e.target.closest("[data-f]");if(!b)return;rlFilter=b.dataset.f;$("rlFilter").querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));};
+function rlPool(){
+  const ideas=DATE_IDEAS.filter(([c])=>rlFilter==="tudo"||c===rlFilter).map(([c,e,t])=>({emoji:e,title:t,src:"idea"}));
+  const ds=(rlFilter==="tudo"||rlFilter==="sonhos")?dreams.filter(d=>!d.done).map(d=>({emoji:catEmoji(d.cat),title:d.title,src:"dream"})):[];
+  return rlFilter==="sonhos"?ds:[...ideas,...ds];
+}
+$("rlSpin").onclick=async()=>{
+  if(rlSpinning) return; const pool=rlPool();
+  if(!pool.length){toast(rlFilter==="sonhos"?"Anote alguns sonhos primeiro 🌠":"Nada pra sortear 😕");return;}
+  rlSpinning=true; $("rlSpin").disabled=true; $("rlResult").classList.remove("landed"); $("rlActions").innerHTML="";
+  const pick=pool[Math.floor(Math.random()*pool.length)]; const steps=18;
+  for(let i=0;i<steps;i++){
+    const o=i===steps-1?pick:pool[Math.floor(Math.random()*pool.length)];
+    $("rlEmoji").textContent=o.emoji; $("rlText").textContent=o.title;
+    await new Promise(r=>setTimeout(r,40+i*i*1.6));
+  }
+  rlLast=pick; $("rlResult").classList.add("landed");
+  $("rlActions").innerHTML=`<span class="pill">${pick.src==="dream"?"🌠 dos nossos sonhos":"💡 ideia da roleta"}</span>${pick.src==="idea"?`<button class="btn ghost small" data-x="rlSave">＋ Guardar nos sonhos</button>`:""}`;
+  rlSpinning=false; $("rlSpin").disabled=false;
+};
+
+/* ---------- cliques ---------- */
+document.addEventListener("click",async(e)=>{
+  const b=e.target.closest("[data-x]"); if(!b||!me) return;
+  const x=b.dataset.x;
+  try{
+    const cId=b.closest("[data-cp]")?.dataset.cp, sId=b.closest("[data-song]")?.dataset.song;
+    if(x==="cpUse"){ const c=coupons.find(v=>v.id===cId); if(c&&confirm(`Usar o vale "${c.title}" agora?`)){ await fs.updateDoc(ref("coupons",cId),{used:true,usedAt:Date.now()}); toast("Vale usado! Aproveita 💕"); } }
+    if(x==="cpDel"){ if(confirm("Apagar esse vale?")) await fs.deleteDoc(ref("coupons",cId)); }
+    if(x==="songDel"){ if(confirm("Tirar essa música da playlist?")) await fs.deleteDoc(ref("songs",sId)); }
+    if(x==="songPlay"){
+      const s=songs.find(v=>v.id===sId), emb=s&&spotifyEmbed(safeUrl(s.link)); const box=b.closest(".song").querySelector(".embed");
+      if(emb&&box&&!box.firstChild){ const f=document.createElement("iframe"); f.src=emb; f.height="80"; f.loading="lazy"; f.allow="encrypted-media"; f.setAttribute("frameborder","0"); box.appendChild(f); b.remove(); }
+    }
+    if(x==="rlSave"&&rlLast){ await fs.addDoc(col("dreams"),{title:rlLast.title,cat:"viver",by:me,done:false,at:Date.now()}); b.remove(); toast("Guardado nos sonhos 🌠"); }
+  }catch(err){console.error(err);toast("Não deu certo, tenta de novo 😕");}
+});
 </script>
 </body>
 </html>
